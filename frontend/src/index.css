@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+@import "ag-grid-community/styles/ag-grid.css";
+@import "ag-grid-community/styles/ag-theme-quartz.css";
+
+/* Premium Scientific Informatics theme variables */
+@layer base {
+  :root {
+    --color-bg-dark: #0f172a;
+    --color-panel-dark: #1e293b;
+    --color-border-dark: #334155;
+    --color-accent-teal: #0ea5e9;
+    --color-accent-neon: #14b8a6;
+  }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #0b0f19;
+  color: #f1f5f9;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar for premium dark feel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0b0f19;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel-hover:hover {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(14, 165, 233, 0.3);
+  box-shadow: 0 0 15px rgba(14, 165, 233, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* AG Grid Dark Theme customizations to match our scientific theme */
+.ag-theme-quartz-dark {
+  --ag-background-color: #0f172a;
+  --ag-header-background-color: #1e293b;
+  --ag-border-color: #334155;
+  --ag-row-hover-color: rgba(14, 165, 233, 0.1);
+  --ag-selected-row-color: rgba(14, 165, 233, 0.2);
+  --ag-foreground-color: #f1f5f9;
+  --ag-header-foreground-color: #94a3b8;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Fallback responsive helper to ensure details area is wide */
+@media (min-width: 1024px) {
+  .details-panel-span {
+    grid-column: span 3 / span 3 !important;
+  }
+}
+

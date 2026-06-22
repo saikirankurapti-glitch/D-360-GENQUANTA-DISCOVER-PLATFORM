@@ -1,0 +1,146 @@
+# =============================================================================
+# GENQUANTAA Discover – Kubernetes Ingress
+# NGINX Ingress Controller with TLS, rate limiting, and WAF annotations
+# =============================================================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: genquantaa-ingress
+  namespace: genquantaa
+  labels:
+    app.kubernetes.io/part-of: genquantaa-discover
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+
+    # Rate limiting (global)
+    nginx.ingress.kubernetes.io/limit-rps: "50"
+    nginx.ingress.kubernetes.io/limit-connections: "20"
+
+    # CORS
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://discover.genquantaa.com"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Authorization, Content-Type, X-CSRFToken"
+
+    # Proxy settings
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+
+    # Security headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+      add_header X-Frame-Options "DENY" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header X-XSS-Protection "1; mode=block" always;
+      add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    # TLS cert-manager
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+spec:
+  tls:
+    - hosts:
+        - discover.genquantaa.com
+        - api.genquantaa.com
+      secretName: genquantaa-tls-cert
+
+  rules:
+    # Frontend
+    - host: discover.genquantaa.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80
+
+    # API Gateway routes
+    - host: api.genquantaa.com
+      http:
+        paths:
+          - path: /api/v1/auth
+            pathType: Prefix
+            backend:
+              service:
+                name: auth-service
+                port:
+                  number: 8001
+
+          - path: /api/v1/metadata
+            pathType: Prefix
+            backend:
+              service:
+                name: metadata-service
+                port:
+                  number: 8002
+
+          - path: /api/v1/query
+            pathType: Prefix
+            backend:
+              service:
+                name: query-service
+                port:
+                  number: 8003
+
+          - path: /api/v1/chemistry
+            pathType: Prefix
+            backend:
+              service:
+                name: cheminformatics-service
+                port:
+                  number: 8004
+
+          - path: /api/v1/connector
+            pathType: Prefix
+            backend:
+              service:
+                name: connector-service
+                port:
+                  number: 8005
+
+          - path: /api/v1/audit
+            pathType: Prefix
+            backend:
+              service:
+                name: audit-service
+                port:
+                  number: 8006
+
+          - path: /api/v1/lineage
+            pathType: Prefix
+            backend:
+              service:
+                name: lineage-service
+                port:
+                  number: 8007
+
+          - path: /api/v1/bioinformatics
+            pathType: Prefix
+            backend:
+              service:
+                name: bioinformatics-service
+                port:
+                  number: 8008
+
+          - path: /api/v1/workflow
+            pathType: Prefix
+            backend:
+              service:
+                name: workflow-service
+                port:
+                  number: 8009
+
+          - path: /api/v1/copilot
+            pathType: Prefix
+            backend:
+              service:
+                name: ai-service
+                port:
+                  number: 8010

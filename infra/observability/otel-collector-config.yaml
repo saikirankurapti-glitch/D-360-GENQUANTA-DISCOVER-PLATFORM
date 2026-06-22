@@ -1,0 +1,98 @@
+# =============================================================================
+# OpenTelemetry Collector Configuration – GENQUANTAA DISCOVER
+# Receives traces & metrics from all 10 microservices
+# Exports to: Jaeger (traces) · Prometheus (metrics) · Logging
+# =============================================================================
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+  # Scrape Prometheus metrics directly from each service /metrics endpoint
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'otel-collector'
+          scrape_interval: 15s
+          static_configs:
+            - targets: ['0.0.0.0:8888']
+
+processors:
+  # Batch spans to reduce export overhead
+  batch:
+    send_batch_size: 1000
+    timeout: 10s
+
+  # Memory limiter prevents OOM
+  memory_limiter:
+    check_interval: 5s
+    limit_percentage: 80
+    spike_limit_percentage: 25
+
+  # Add service resource attributes
+  resource:
+    attributes:
+      - key: deployment.environment
+        value: production
+        action: upsert
+      - key: platform
+        value: genquantaa-discover
+        action: upsert
+
+  # Filter sensitive data from traces
+  attributes:
+    actions:
+      - key: db.statement
+        action: hash
+      - key: http.request.header.authorization
+        action: delete
+      - key: http.request.header.x-api-key
+        action: delete
+
+exporters:
+  # Send traces to Jaeger
+  otlp/jaeger:
+    endpoint: jaeger:14250
+    tls:
+      insecure: true
+
+  # Expose metrics for Prometheus scraping
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    namespace: genquantaa
+    const_labels:
+      environment: production
+
+  # Debug logging (disable in prod)
+  logging:
+    verbosity: detailed
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+  pprof:
+    endpoint: 0.0.0.0:1888
+  zpages:
+    endpoint: 0.0.0.0:55679
+
+service:
+  extensions: [health_check, pprof, zpages]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, attributes, batch]
+      exporters: [otlp/jaeger, logging]
+    metrics:
+      receivers: [otlp, prometheus]
+      processors: [memory_limiter, resource, batch]
+      exporters: [prometheus, logging]
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [logging]

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>JSME Molecular Editor</title>
+  <script type="text/javascript" src="https://jsme-editor.github.io/dist/jsme/jsme.nocache.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #070b13;
+      overflow: hidden;
+    }
+    #jsme_container {
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="jsme_container"></div>
+  
+  <script type="text/javascript">
+    var jsmeApplet;
+    function jsmeOnLoad() {
+      jsmeApplet = new JSME("jsme_container", "100%", "100%", {
+        "options": "query,border,nocds"
+      });
+      
+      jsmeApplet.setCallBack("AfterPasteActions", sendSmiles);
+      jsmeApplet.setCallBack("AtomHighlight", sendSmiles);
+      
+      // Listen to structural modifications
+      window.addEventListener("mouseup", sendSmiles);
+      window.addEventListener("keyup", sendSmiles);
+      
+      // Regular polling for change verification
+      setInterval(sendSmiles, 800);
+    }
+    
+    function sendSmiles() {
+      if (!jsmeApplet) return;
+      var smiles = jsmeApplet.smiles();
+      window.parent.postMessage({ type: 'JSME_SMILES_CHANGED', smiles: smiles }, '*');
+    }
+    
+    window.addEventListener('message', function(event) {
+      if (event.data && event.data.type === 'JSME_SET_SMILES') {
+        if (jsmeApplet) {
+          jsmeApplet.readGenericMolecularInput(event.data.smiles);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

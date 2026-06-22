@@ -1,0 +1,125 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-rdkit-init-config
+  labels:
+    app: postgres-rdkit
+data:
+  init_rdkit.sql: |
+    -- Enable the RDKit extension
+    CREATE EXTENSION IF NOT EXISTS rdkit;
+
+    -- Create compounds table supporting RDKit cartridge data types
+    CREATE TABLE IF NOT EXISTS compounds (
+        id SERIAL PRIMARY KEY,
+        entity_key VARCHAR(50) UNIQUE NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        smiles TEXT NOT NULL,
+        mol mol,                       -- RDKit molecule representation
+        morgan_bfp bfp,                -- Binary Fingerprint (Morgan/circular)
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+    -- Trigger to automatically populate RDKit molecular fields from SMILES
+    CREATE OR REPLACE FUNCTION compute_compound_rdkit_fields() 
+    RETURNS TRIGGER AS $$
+    BEGIN
+        BEGIN
+            -- Cast SMILES string directly to mol type
+            NEW.mol := NEW.smiles::mol;
+            -- Generate Morgan fingerprint (radius 2, 2048 bits)
+            NEW.morgan_bfp := morganbv_fp(NEW.mol);
+        EXCEPTION WHEN OTHERS THEN
+            -- If SMILES is invalid or RDKit fails, set fields to NULL
+            NEW.mol := NULL;
+            NEW.morgan_bfp := NULL;
+        END;
+        RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    -- Bind trigger to table for INSERT and UPDATE operations
+    DROP TRIGGER IF EXISTS trg_compounds_rdkit_fields ON compounds;
+    CREATE TRIGGER trg_compounds_rdkit_fields
+    BEFORE INSERT OR UPDATE OF smiles ON compounds
+    FOR EACH ROW
+    EXECUTE FUNCTION compute_compound_rdkit_fields();
+
+    -- Create GiST indexes for accelerated chemical structure searching
+    CREATE INDEX IF NOT EXISTS idx_compounds_mol ON compounds USING gist(mol);
+    CREATE INDEX IF NOT EXISTS idx_compounds_bfp ON compounds USING gist(morgan_bfp);
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-rdkit-pvc
+  labels:
+    app: postgres-rdkit
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-rdkit
+  labels:
+    app: postgres-rdkit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-rdkit
+  template:
+    metadata:
+      labels:
+        app: postgres-rdkit
+    spec:
+      containers:
+      - name: postgres-rdkit
+        image: ghcr.io/radusuciu/postgres-rdkit:15
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: "cheminformatics"
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          value: "postgres"
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+          requests:
+            cpu: "250m"
+            memory: "512Mi"
+        volumeMounts:
+        - name: postgres-init-volume
+          mountPath: /docker-entrypoint-initdb.d
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgres-init-volume
+        configMap:
+          name: postgres-rdkit-init-config
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-rdkit-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+spec:
+  selector:
+    app: postgres-rdkit
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP

@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: genquantaa-config
+  namespace: genquantaa
+  labels:
+    app.kubernetes.io/part-of: genquantaa-discover
+data:
+  # Service URLs (internal cluster DNS)
+  AUTH_SERVICE_URL: "http://auth-service:8001"
+  METADATA_SERVICE_URL: "http://metadata-service:8002"
+  QUERY_SERVICE_URL: "http://query-service:8003"
+  CHEMINFORMATICS_SERVICE_URL: "http://cheminformatics-service:8004"
+  CONNECTOR_SERVICE_URL: "http://connector-service:8005"
+  AUDIT_SERVICE_URL: "http://audit-service:8006"
+  LINEAGE_SERVICE_URL: "http://lineage-service:8007"
+  BIOINFORMATICS_SERVICE_URL: "http://bioinformatics-service:8008"
+  WORKFLOW_SERVICE_URL: "http://workflow-service:8009"
+  AI_SERVICE_URL: "http://ai-service:8010"
+
+  # PostgreSQL (Phase 8: Unified database)
+  POSTGRES_HOST: "postgres"
+  POSTGRES_PORT: "5432"
+
+  # Per-service DATABASE_URL (PostgreSQL)
+  AUTH_DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/genquantaa_auth"
+  METADATA_DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/genquantaa_metadata"
+  QUERY_DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/genquantaa_query"
+  CONNECTOR_DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/genquantaa_connector"
+  AUDIT_DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/genquantaa_audit"
+  LINEAGE_DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/genquantaa_lineage"
+  BIOINFO_DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/genquantaa_bioinfo"
+  WORKFLOW_DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/genquantaa_workflow"
+  AI_DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/genquantaa_ai"
+  CHEMINFORMATICS_DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres-rdkit:5432/cheminformatics"
+
+  # OpenTelemetry
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.observability:4317"
+  OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+
+  # General
+  ENVIRONMENT: "production"
+  LOG_LEVEL: "INFO"
+  ACCESS_TOKEN_EXPIRE_MINUTES: "30"
+  REFRESH_TOKEN_EXPIRE_DAYS: "7"
+
+  # Rate Limiting
+  RATE_LIMIT_REQUESTS_PER_MINUTE: "200"
+  AUTH_RATE_LIMIT_REQUESTS_PER_MINUTE: "10"
+
+  # CORS (set to actual frontend domain in production)
+  ALLOWED_ORIGINS: "https://discover.genquantaa.com"
+
+  # Circuit Breaker defaults
+  CIRCUIT_BREAKER_FAILURE_THRESHOLD: "5"
+  CIRCUIT_BREAKER_TIMEOUT_SECONDS: "30"
+
+  # AI Service
+  AI_MAX_TOKENS: "4096"
+  AI_TEMPERATURE: "0.1"

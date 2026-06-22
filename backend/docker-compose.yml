@@ -1,0 +1,316 @@
+version: '3.8'
+
+# =============================================================================
+# GENQUANTAA DISCOVER – Application Services
+# Phase 8: All services migrated to PostgreSQL. SQLite removed.
+#
+# Copy .env.example → .env and fill real values before running.
+# Run observability stack separately:
+#   docker-compose -f ../infra/observability/docker-compose.observability.yml up -d
+# =============================================================================
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # Unified PostgreSQL instance for all platform services (except cheminformatics)
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:18-alpine
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      - POSTGRES_DB=postgres
+    volumes:
+      - ./db/init_databases.sql:/docker-entrypoint-initdb.d/01_init_databases.sql
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - genquantaa-internal
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL with RDKit extension for Cheminformatics Service
+  # ---------------------------------------------------------------------------
+  postgres-rdkit:
+    image: ghcr.io/radusuciu/postgres-rdkit:15
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-cheminformatics}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - ./services/cheminformatics_service/db/init_rdkit.sql:/docker-entrypoint-initdb.d/init_rdkit.sql
+      - postgres-rdkit-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - genquantaa-internal
+
+  # ---------------------------------------------------------------------------
+  # Application Services – All use PostgreSQL
+  # ---------------------------------------------------------------------------
+  auth_service:
+    build:
+      context: ./services/auth_service
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/genquantaa_auth
+      - SECRET_KEY=${AUTH_SECRET_KEY:?AUTH_SECRET_KEY is required}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      - REFRESH_TOKEN_EXPIRE_DAYS=${REFRESH_TOKEN_EXPIRE_DAYS:-7}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT:-http://localhost:4317}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - genquantaa-internal
+
+  metadata_service:
+    build:
+      context: ./services/metadata_service
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      - PORT=8002
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/genquantaa_metadata
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT:-http://localhost:4317}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - genquantaa-internal
+
+  query_service:
+    build:
+      context: ./services/query_service
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      - PORT=8003
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/genquantaa_query
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT:-http://localhost:4317}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - genquantaa-internal
+
+  cheminformatics_service:
+    build:
+      context: ./services/cheminformatics_service
+      dockerfile: Dockerfile
+    ports:
+      - "8004:8004"
+    environment:
+      - PORT=8004
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres-rdkit:5432/${POSTGRES_DB:-cheminformatics}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT:-http://localhost:4317}
+    depends_on:
+      postgres-rdkit:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+    networks:
+      - genquantaa-internal
+
+  connector_service:
+    build:
+      context: ./services/connector_service
+      dockerfile: Dockerfile
+    ports:
+      - "8005:8005"
+    environment:
+      - PORT=8005
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/genquantaa_connector
+      - ENCRYPTION_KEY=${CONNECTOR_ENCRYPTION_KEY:?CONNECTOR_ENCRYPTION_KEY is required}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT:-http://localhost:4317}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8005/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - genquantaa-internal
+
+  audit_service:
+    build:
+      context: ./services/audit_service
+      dockerfile: Dockerfile
+    ports:
+      - "8006:8006"
+    environment:
+      - PORT=8006
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/genquantaa_audit
+      - AUDIT_API_SECRET=${AUDIT_API_SECRET:?AUDIT_API_SECRET is required}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT:-http://localhost:4317}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8006/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - genquantaa-internal
+
+  lineage_service:
+    build:
+      context: ./services/lineage_service
+      dockerfile: Dockerfile
+    ports:
+      - "8007:8007"
+    environment:
+      - PORT=8007
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/genquantaa_lineage
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT:-http://localhost:4317}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8007/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - genquantaa-internal
+
+  bioinformatics_service:
+    build:
+      context: ./services/bioinformatics_service
+      dockerfile: Dockerfile
+    ports:
+      - "8008:8008"
+    environment:
+      - PORT=8008
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/genquantaa_bioinfo
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT:-http://localhost:4317}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8008/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+    networks:
+      - genquantaa-internal
+
+  workflow_service:
+    build:
+      context: ./services/workflow_service
+      dockerfile: Dockerfile
+    ports:
+      - "8009:8009"
+    environment:
+      - PORT=8009
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/genquantaa_workflow
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT:-http://localhost:4317}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8009/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - genquantaa-internal
+
+  ai_service:
+    build:
+      context: ./services/ai_service
+      dockerfile: Dockerfile
+    ports:
+      - "8010:8010"
+    environment:
+      - PORT=8010
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/genquantaa_ai
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT:-http://localhost:4317}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8010/healthz"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - genquantaa-internal
+
+volumes:
+  postgres-data:
+  postgres-rdkit-data:
+
+networks:
+  genquantaa-internal:
+    name: genquantaa-internal
+    driver: bridge

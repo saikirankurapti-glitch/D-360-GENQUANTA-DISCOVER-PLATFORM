@@ -1,0 +1,13 @@
+fastapi>=0.100.0
+uvicorn>=0.22.0
+sqlalchemy>=2.0.0
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+psycopg2-binary>=2.9.6
+asyncpg>=0.29.0
+pytest>=7.0.0
+httpx>=0.24.0
+biopython>=1.80
+pandas>=2.0.0
+numpy>=1.20.0
+scipy>=1.8.0

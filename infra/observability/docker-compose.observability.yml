@@ -1,0 +1,168 @@
+version: '3.8'
+
+# =============================================================================
+# GENQUANTAA DISCOVER – OBSERVABILITY STACK
+# OpenTelemetry Collector · Prometheus · Grafana · Jaeger · AlertManager
+# =============================================================================
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # OpenTelemetry Collector – receives traces/metrics from all services
+  # ---------------------------------------------------------------------------
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.97.0
+    container_name: genquantaa-otel-collector
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "8889:8889"   # Prometheus metrics scrape endpoint
+      - "8888:8888"   # Collector internal metrics
+    depends_on:
+      - jaeger
+    restart: unless-stopped
+    networks:
+      - observability
+
+  # ---------------------------------------------------------------------------
+  # Jaeger – Distributed Tracing Backend
+  # ---------------------------------------------------------------------------
+  jaeger:
+    image: jaegertracing/all-in-one:1.56
+    container_name: genquantaa-jaeger
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - SPAN_STORAGE_TYPE=badger
+      - BADGER_EPHEMERAL=false
+      - BADGER_DIRECTORY_VALUE=/badger/data
+      - BADGER_DIRECTORY_KEY=/badger/key
+    volumes:
+      - jaeger-data:/badger
+    ports:
+      - "16686:16686"  # Jaeger UI
+      - "14268:14268"  # Collector HTTP
+      - "14250:14250"  # Collector gRPC
+    restart: unless-stopped
+    networks:
+      - observability
+
+  # ---------------------------------------------------------------------------
+  # Prometheus – Metrics Storage & Alerting
+  # ---------------------------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:v2.51.2
+    container_name: genquantaa-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      - otel-collector
+    restart: unless-stopped
+    networks:
+      - observability
+
+  # ---------------------------------------------------------------------------
+  # AlertManager – Routes alerts to email/Slack/PagerDuty
+  # ---------------------------------------------------------------------------
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: genquantaa-alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    volumes:
+      - ./prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager-data:/alertmanager
+    ports:
+      - "9093:9093"
+    restart: unless-stopped
+    networks:
+      - observability
+
+  # ---------------------------------------------------------------------------
+  # Grafana – Dashboards
+  # ---------------------------------------------------------------------------
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: genquantaa-grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-GenQuantaa2026!}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+      - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_SERVER_ROOT_URL=https://metrics.genquantaa.internal
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+      - jaeger
+    restart: unless-stopped
+    networks:
+      - observability
+
+  # ---------------------------------------------------------------------------
+  # Node Exporter – Host-level metrics
+  # ---------------------------------------------------------------------------
+  node-exporter:
+    image: prom/node-exporter:v1.8.0
+    container_name: genquantaa-node-exporter
+    command:
+      - '--path.rootfs=/host'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /:/host:ro,rslave
+    ports:
+      - "9100:9100"
+    restart: unless-stopped
+    networks:
+      - observability
+
+  # ---------------------------------------------------------------------------
+  # cAdvisor – Container metrics
+  # ---------------------------------------------------------------------------
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: genquantaa-cadvisor
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    networks:
+      - observability
+
+volumes:
+  prometheus-data:
+  grafana-data:
+  alertmanager-data:
+  jaeger-data:
+
+networks:
+  observability:
+    name: genquantaa-observability
+    driver: bridge

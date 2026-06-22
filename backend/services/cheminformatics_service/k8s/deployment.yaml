@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cheminformatics-service
+  labels:
+    app: cheminformatics-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cheminformatics-service
+  template:
+    metadata:
+      labels:
+        app: cheminformatics-service
+    spec:
+      containers:
+      - name: cheminformatics-service
+        image: discover-cheminformatics-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8004
+        env:
+        - name: DATABASE_URL
+          value: "postgresql://postgres:postgres@postgres-service:5432/cheminformatics"
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+          requests:
+            cpu: "250m"
+            memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cheminformatics-service
+spec:
+  selector:
+    app: cheminformatics-service
+  ports:
+    - protocol: TCP
+      port: 8004
+      targetPort: 8004
+  type: ClusterIP

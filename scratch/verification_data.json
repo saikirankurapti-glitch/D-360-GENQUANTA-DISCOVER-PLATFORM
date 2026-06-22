@@ -1,0 +1,144 @@
+{
+  "db": {
+    "auth": {
+      "users": 11,
+      "roles": 4,
+      "permissions": 7
+    },
+    "metadata": {
+      "metadata_entities": 24,
+      "metadata_fields": 93,
+      "metadata_relationships": 0,
+      "metadata_versions": 6,
+      "metadata_sync_history": 81
+    },
+    "query": {
+      "query_templates": 4,
+      "query_history": 11
+    },
+    "chemistry": {
+      "compounds": 0
+    },
+    "connectors": {
+      "data_sources": 5,
+      "connection_configs": 5
+    },
+    "audit": {
+      "audit_logs": 86,
+      "electronic_signatures": 0
+    },
+    "lineage": {
+      "lineage_nodes": 0,
+      "lineage_edges": 0
+    },
+    "bioinformatics": {
+      "sequences": 2,
+      "alignments": 0
+    },
+    "workflow": {
+      "workflow_definitions": 1,
+      "workflow_runs": 1,
+      "workflow_steps": 2,
+      "workflow_approvals": 1
+    },
+    "ai": {
+      "chat_sessions": 1,
+      "chat_messages": 6
+    }
+  },
+  "api": {
+    "metadata": {
+      "metadata_entities": {
+        "status": "SUCCESS",
+        "count": 24,
+        "url": "http://localhost:8002/api/v1/metadata/entities"
+      },
+      "metadata_fields": {
+        "status": "SUCCESS",
+        "count": 93,
+        "url": "http://localhost:8002/api/v1/metadata/fields"
+      },
+      "metadata_relationships": {
+        "status": "SUCCESS",
+        "count": 0,
+        "url": "http://localhost:8002/api/v1/metadata/federation/relationships"
+      }
+    },
+    "query": {
+      "query_templates": {
+        "status": "SUCCESS",
+        "count": 4,
+        "url": "http://localhost:8003/api/v1/query/templates"
+      },
+      "query_history": {
+        "status": "SUCCESS",
+        "count": 11,
+        "url": "http://localhost:8003/api/v1/query/history"
+      }
+    },
+    "chemistry": {
+      "compounds": {
+        "status": "SUCCESS",
+        "count": 0,
+        "url": "http://localhost:8004/api/v1/compounds"
+      }
+    },
+    "connectors": {
+      "data_sources": {
+        "status": "SUCCESS",
+        "count": 5,
+        "url": "http://localhost:8005/api/v1/connectors/sources"
+      }
+    },
+    "audit": {
+      "audit_logs": {
+        "status": "SUCCESS",
+        "count": 87,
+        "url": "http://localhost:8006/api/v1/audit/logs?limit=200"
+      },
+      "electronic_signatures": {
+        "status": "SUCCESS",
+        "count": 0,
+        "url": "http://localhost:8006/api/v1/compliance/signatures"
+      }
+    },
+    "lineage": {
+      "lineage_elements": {
+        "status": "SUCCESS",
+        "count": 0,
+        "url": "http://localhost:8007/api/v1/lineage/graph"
+      }
+    },
+    "bioinformatics": {
+      "sequences": {
+        "status": "SUCCESS",
+        "count": 2,
+        "url": "http://localhost:8008/api/v1/sequences"
+      }
+    },
+    "workflow": {
+      "workflow_definitions": {
+        "status": "SUCCESS",
+        "count": 1,
+        "url": "http://localhost:8009/api/v1/workflows"
+      },
+      "workflow_runs": {
+        "status": "SUCCESS",
+        "count": 1,
+        "url": "http://localhost:8009/api/v1/workflows/runs"
+      },
+      "workflow_approvals": {
+        "status": "SUCCESS",
+        "count": 1,
+        "url": "http://localhost:8009/api/v1/workflows/approvals"
+      }
+    },
+    "ai": {
+      "chat_sessions": {
+        "status": "SUCCESS",
+        "count": 1,
+        "url": "http://localhost:8010/api/v1/copilot/chat/sessions"
+      }
+    }
+  }
+}

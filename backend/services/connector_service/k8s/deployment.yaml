@@ -1,0 +1,89 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: connector-service-config
+  labels:
+    app: connector-service
+data:
+  DATABASE_URL: "postgresql://postgres:postgres@postgres-rdkit:5432/connector_db"
+  REDIS_URL: "redis://redis-service:6379/0"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: connector-service-secrets
+type: Opaque
+data:
+  # Base64 encoded string for "351F6FEE44C2BD56A11D36982DB5F11F351F6FEE44C2BD56A11D36982DB5F11F"
+  ENCRYPTION_KEY: "MzUxRjZGRUU0NEMyQkQ1NkExMUQzNjk4MkRCNUYxMUYzNTFGNkZFRTQ0QzJCRDU2QTExRDM2OTgyREI1RjExRg=="
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: connector-service-deployment
+  labels:
+    app: connector-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: connector-service
+  template:
+    metadata:
+      labels:
+        app: connector-service
+    spec:
+      containers:
+      - name: connector-service
+        image: genquantaa/connector-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8005
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: connector-service-config
+              key: DATABASE_URL
+        - name: REDIS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: connector-service-config
+              key: REDIS_URL
+        - name: ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: connector-service-secrets
+              key: ENCRYPTION_KEY
+        resources:
+          limits:
+            cpu: "1.0"
+            memory: 1Gi
+          requests:
+            cpu: "250m"
+            memory: 256Mi
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8005
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8005
+          initialDelaySeconds: 15
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: connector-service
+spec:
+  selector:
+    app: connector-service
+  ports:
+  - protocol: TCP
+    port: 8005
+    targetPort: 8005
+  type: ClusterIP
