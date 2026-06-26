@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-GENQUANTAA Discover – Load Test Runner & Capacity Report Generator
+AnalytiX – Load Test Runner & Capacity Report Generator
 ==================================================================
 Orchestrates load tests at 100/500/1000 users and generates a
 comprehensive capacity planning report.
@@ -126,7 +126,7 @@ def generate_capacity_report(locust_results: list, k6_result: dict = None) -> st
     """Generate a markdown capacity planning report."""
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    report = f"""# GENQUANTAA Discover – Capacity Report
+    report = f"""# AnalytiX – Capacity Report
 **Generated:** {now}  
 **Platform Version:** 1.0.0  
 **Test Scenarios:** 100 / 500 / 1000 concurrent users
@@ -135,7 +135,7 @@ def generate_capacity_report(locust_results: list, k6_result: dict = None) -> st
 
 ## Executive Summary
 
-This report presents the results of load testing the GENQUANTAA Discover platform
+This report presents the results of load testing the AnalytiX platform
 across three user concurrency levels. Tests simulate realistic pharmaceutical
 scientist workflows including authentication, metadata catalog browsing, chemistry
 searches (RDKit), bioinformatics operations, workflow execution, and AI Copilot queries.

@@ -114,7 +114,7 @@ class ReportGenerator:
         """Generates a PDF bytes representation of the scientific report."""
         # We output a well-formatted clean text layout representing the PDF payload
         pdf_content = f"""%PDF-1.4
-%GENQUANTAA Discover Platform - Compliance Report
+%AnalytiX Platform - Compliance Report
 1 0 obj
 << /Type /Catalog /Pages 2 0 R >>
 endobj
@@ -154,7 +154,7 @@ startxref
         """Generates slide deck structure."""
         ppt_json = {
             "presentation": title,
-            "theme": "GenQuantaa Dark Mode",
+            "theme": "AnalytiX Dark Mode",
             "slides_count": len(slides),
             "slides": slides
         }

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-GENQUANTAA Discover – Canary Deployment Generator
+AnalytiX – Canary Deployment Generator
 =================================================
 Generates canary traffic-split Ingress manifests using NGINX annotations.
 

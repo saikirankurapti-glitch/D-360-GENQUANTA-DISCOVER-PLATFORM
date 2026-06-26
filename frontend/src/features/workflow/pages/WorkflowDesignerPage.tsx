@@ -190,14 +190,14 @@ export const WorkflowDesignerPage = () => {
       sequence_analysis: { label: 'Bioinfo Alignment', sequence_a: 'MADEEKLKIALALGYDAVGD', sequence_b: 'MADEEKIKIALALGYDAVGD' },
       assay_analysis: { label: 'Dose Response Curve', assay_id: 101 },
       export: { label: 'CSV Exporter', format: 'csv' },
-      notification: { label: 'Teams Dispatch', channel: 'teams', recipient: 'lab-alert@genquantaa.com', subject: 'Workflow Completed', message: 'Workflow finished executing successfully.' },
+      notification: { label: 'Teams Dispatch', channel: 'teams', recipient: 'lab-alert@analytix.com', subject: 'Workflow Completed', message: 'Workflow finished executing successfully.' },
       approval: { label: 'Sign Gate', role_required: 'REVIEWER' }
     };
 
     const newNode = {
       id,
       type: 'custom',
-      position: { x: Math.random() * 250 + 50, y: Math.random() * 250 + 50 },
+      position: { x: 100 + nodes.length * 220, y: 150 },
       data: { 
         type, 
         label: defaultData[type]?.label || 'New Step',
@@ -272,7 +272,11 @@ export const WorkflowDesignerPage = () => {
         body: JSON.stringify(payload)
       });
       if (res.ok) {
+        const savedDef = await res.json();
         alert('Workflow definition saved successfully.');
+        if (savedDef && savedDef.id) {
+          setSelectedDefId(String(savedDef.id));
+        }
         fetchDefinitions();
       } else {
         alert('Error saving workflow.');

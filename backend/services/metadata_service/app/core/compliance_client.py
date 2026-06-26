@@ -6,7 +6,7 @@ logger = logging.getLogger("compliance_client")
 
 AUDIT_SERVICE_URL = "http://localhost:8006/api/v1/audit/logs"
 VERSION_SERVICE_URL = "http://localhost:8006/api/v1/compliance/versions"
-AUDIT_API_SECRET = "GENQUANTAA_AUDIT_INTERNAL_API_SECRET_2026"
+AUDIT_API_SECRET = "AnalytiX_AUDIT_INTERNAL_API_SECRET_2026"
 
 def log_audit_event(
     action: str,

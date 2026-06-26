@@ -87,7 +87,27 @@ export async function apiRequest(path: string, options: RequestOptions = {}) {
 
   init.headers = headers;
 
-  let response = await fetch(`${baseUrl}${path}`, init);
+  const maxRetries = 3;
+  let delay = 200;
+  let response: Response | undefined;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      response = await fetch(`${baseUrl}${path}`, init);
+      break;
+    } catch (err: any) {
+      if (attempt === maxRetries) {
+        console.error(`Fetch failure on ${baseUrl}${path}:`, err);
+        throw err;
+      }
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      delay *= 2;
+    }
+  }
+
+  if (!response) {
+    throw new Error('No response received');
+  }
 
   // If 401, try to refresh
   if (response.status === 401) {
@@ -96,7 +116,24 @@ export async function apiRequest(path: string, options: RequestOptions = {}) {
       // Retry with new token
       headers.set('Authorization', `Bearer ${newToken}`);
       init.headers = headers;
-      response = await fetch(`${baseUrl}${path}`, init);
+      
+      delay = 200;
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          response = await fetch(`${baseUrl}${path}`, init);
+          break;
+        } catch (err: any) {
+          if (attempt === maxRetries) {
+            console.error(`Fetch failure after refresh on ${baseUrl}${path}:`, err);
+            throw err;
+          }
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          delay *= 2;
+        }
+      }
+      if (!response) {
+        throw new Error('No response received after refresh');
+      }
     } else {
       // Refresh failed, redirect or logout is triggered by store
       throw new Error('Unauthorized');

@@ -1,5 +1,5 @@
 # =============================================================================
-# OpenTelemetry Collector Configuration – GENQUANTAA DISCOVER
+# OpenTelemetry Collector Configuration – AnalytiX DISCOVER
 # Receives traces & metrics from all 10 microservices
 # Exports to: Jaeger (traces) · Prometheus (metrics) · Logging
 # =============================================================================

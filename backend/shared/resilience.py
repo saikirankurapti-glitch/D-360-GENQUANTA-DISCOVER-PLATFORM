@@ -1,5 +1,5 @@
 """
-GENQUANTAA Discover – Shared Circuit Breaker + Retry Policies
+AnalytiX – Shared Circuit Breaker + Retry Policies
 =============================================================
 Provides resilience patterns for inter-service HTTP calls:
   • CircuitBreaker – prevents cascade failures

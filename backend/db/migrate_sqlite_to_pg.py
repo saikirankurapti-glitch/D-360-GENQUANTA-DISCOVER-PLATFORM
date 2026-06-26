@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-GENQUANTAA Discover - SQLite to PostgreSQL Data Migration Script
+AnalytiX - SQLite to PostgreSQL Data Migration Script
 =================================================================
 Phase 8: Exports data from each service's SQLite database and imports
 it into the corresponding PostgreSQL database.
@@ -276,7 +276,7 @@ def main():
     args = parser.parse_args()
 
     print("=" * 60)
-    print("GENQUANTAA Discover - SQLite -> PostgreSQL Migration")
+    print("AnalytiX - SQLite -> PostgreSQL Migration")
     print(f"Target: {args.pg_user}@{args.pg_host}:{args.pg_port}")
     if args.dry_run:
         print("MODE: DRY RUN (no data will be written)")

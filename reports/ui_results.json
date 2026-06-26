@@ -1,0 +1,86 @@
+[
+  {
+    "moduleName": "Login & Authentication",
+    "status": "Pass",
+    "executionTimeMs": 13255,
+    "screenshotPath": "reports/screenshots/login___authentication.png"
+  },
+  {
+    "moduleName": "Dashboard Hub",
+    "status": "Pass",
+    "executionTimeMs": 10020,
+    "screenshotPath": "reports/screenshots/dashboard_hub.png"
+  },
+  {
+    "moduleName": "Data Registry",
+    "status": "Pass",
+    "executionTimeMs": 11057,
+    "screenshotPath": "reports/screenshots/data_registry.png"
+  },
+  {
+    "moduleName": "Metadata Catalog",
+    "status": "Pass",
+    "executionTimeMs": 10252,
+    "screenshotPath": "reports/screenshots/metadata_catalog.png"
+  },
+  {
+    "moduleName": "Query Builder",
+    "status": "Pass",
+    "executionTimeMs": 11571,
+    "screenshotPath": "reports/screenshots/query_builder.png"
+  },
+  {
+    "moduleName": "Compound Explorer",
+    "status": "Pass",
+    "executionTimeMs": 11499,
+    "screenshotPath": "reports/screenshots/compound_explorer.png"
+  },
+  {
+    "moduleName": "Bioinformatics Explorer",
+    "status": "Pass",
+    "executionTimeMs": 13264,
+    "screenshotPath": "reports/screenshots/bioinformatics_explorer.png"
+  },
+  {
+    "moduleName": "Analytics Workbench",
+    "status": "Pass",
+    "executionTimeMs": 11175,
+    "screenshotPath": "reports/screenshots/analytics_workbench.png"
+  },
+  {
+    "moduleName": "Workflow Automation",
+    "status": "Pass",
+    "executionTimeMs": 13970,
+    "screenshotPath": "reports/screenshots/workflow_automation.png"
+  },
+  {
+    "moduleName": "Audit Trail Logs",
+    "status": "Pass",
+    "executionTimeMs": 13425,
+    "screenshotPath": "reports/screenshots/audit_trail_logs.png"
+  },
+  {
+    "moduleName": "Compliance Console",
+    "status": "Pass",
+    "executionTimeMs": 11073,
+    "screenshotPath": "reports/screenshots/compliance_console.png"
+  },
+  {
+    "moduleName": "Data Lineage Explorer",
+    "status": "Pass",
+    "executionTimeMs": 9658,
+    "screenshotPath": "reports/screenshots/data_lineage_explorer.png"
+  },
+  {
+    "moduleName": "AI Scientist Copilot",
+    "status": "Pass",
+    "executionTimeMs": 16265,
+    "screenshotPath": "reports/screenshots/ai_scientist_copilot.png"
+  },
+  {
+    "moduleName": "User Administration",
+    "status": "Pass",
+    "executionTimeMs": 12075,
+    "screenshotPath": "reports/screenshots/user_administration.png"
+  }
+]

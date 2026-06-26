@@ -27,7 +27,7 @@ class RestApiConnector(BaseConnector):
         auth_type = self.credentials.get("auth_type", "none").lower()
         self.headers = {
             "Accept": "application/json",
-            "User-Agent": "GenQuantaa-Connector-Service/1.0"
+            "User-Agent": "AnalytiX-Connector-Service/1.0"
         }
         
         # Configure auth headers

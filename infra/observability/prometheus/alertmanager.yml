@@ -1,8 +1,8 @@
 global:
   resolve_timeout: 5m
   smtp_smarthost: 'smtp.genquantaa.internal:587'
-  smtp_from: 'alerts@genquantaa.com'
-  smtp_auth_username: 'alerts@genquantaa.com'
+  smtp_from: 'alerts@analytix.com'
+  smtp_auth_username: 'alerts@analytix.com'
   smtp_auth_password: '${SMTP_PASSWORD}'
 
 route:
@@ -25,9 +25,9 @@ route:
 receivers:
   - name: 'team-platform'
     email_configs:
-      - to: 'platform-team@genquantaa.com'
+      - to: 'platform-team@analytix.com'
         headers:
-          Subject: '[GENQUANTAA] {{ .GroupLabels.alertname }}'
+          Subject: '[AnalytiX] {{ .GroupLabels.alertname }}'
 
   - name: 'pagerduty-critical'
     pagerduty_configs:

@@ -163,3 +163,19 @@ def test_workspaces_crud():
     response = client.delete(f"/api/v1/analytics/workspaces/{workspace_id}")
     assert response.status_code == 200
     assert response.json()["message"] == "Workspace deleted successfully"
+
+
+def test_dashboard_analytics():
+    response = client.get("/api/v1/analytics/dashboard-analytics")
+    assert response.status_code == 200
+    data = response.json()
+    assert "compounds" in data
+    assert "assays" in data
+    assert "bioinformatics" in data
+    assert "workflows" in data
+    assert "compliance" in data
+    assert "ai_copilot" in data
+    assert "metadata" in data
+    assert "eln_lims" in data
+    assert "executive" in data
+

@@ -1,5 +1,5 @@
 -- =============================================================================
--- GENQUANTAA Discover – PostgreSQL Database Initialization
+-- AnalytiX Discover – PostgreSQL Database Initialization
 -- Phase 8: Creates all service databases in a single PostgreSQL instance.
 -- This script runs on first container startup via docker-entrypoint-initdb.d.
 -- =============================================================================

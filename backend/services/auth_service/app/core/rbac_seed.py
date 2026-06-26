@@ -63,10 +63,10 @@ def seed_rbac(db: Session):
 
     # 3. Create default bootstrapper accounts if they don't exist yet
     default_users = [
-        {"email": "admin@genquantaa.com", "name": "System Administrator", "role_name": "Admin"},
-        {"email": "scientist@genquantaa.com", "name": "Lead Researcher", "role_name": "Scientist"},
-        {"email": "reviewer@genquantaa.com", "name": "Quality Reviewer", "role_name": "Reviewer"},
-        {"email": "compliance@genquantaa.com", "name": "Compliance Inspector", "role_name": "Compliance Officer"}
+        {"email": "admin@analytix.com", "name": "System Administrator", "role_name": "Admin"},
+        {"email": "scientist@analytix.com", "name": "Lead Researcher", "role_name": "Scientist"},
+        {"email": "reviewer@analytix.com", "name": "Quality Reviewer", "role_name": "Reviewer"},
+        {"email": "compliance@analytix.com", "name": "Compliance Inspector", "role_name": "Compliance Officer"}
     ]
 
     for u in default_users:
@@ -75,7 +75,7 @@ def seed_rbac(db: Session):
             # Create user
             db_u = User(
                 email=u["email"],
-                hashed_password=get_password_hash("GenQuantaaDiscover2026!"),
+                hashed_password=get_password_hash("AnalytiXDiscover2026!"),
                 full_name=u["name"],
                 role=u["role_name"],
                 is_active=True

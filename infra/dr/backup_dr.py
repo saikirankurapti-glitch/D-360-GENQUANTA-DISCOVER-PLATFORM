@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-GENQUANTAA Discover – Automated Backup & Disaster Recovery
+AnalytiX – Automated Backup & Disaster Recovery
 ==========================================================
 Implements:
   • Automated SQLite database backups (all services)
@@ -40,7 +40,7 @@ logger = logging.getLogger("backup-dr")
 # --------------------------------------------------------------------------- #
 # Configuration
 # --------------------------------------------------------------------------- #
-PROJECT_ROOT = Path(__file__).resolve().parents[2]  # GENQUANTAA DISCOVER/
+PROJECT_ROOT = Path(__file__).resolve().parents[2]  # AnalytiX/
 BACKUP_ROOT = PROJECT_ROOT / "backups"
 
 SQLITE_DBS = {
@@ -280,7 +280,7 @@ def run_backup(mode: str = "daily"):
     dest_dir = BACKUP_ROOT / f"run_{timestamp}"
     dest_dir.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"=== GENQUANTAA Backup Start | mode={mode} | timestamp={timestamp} ===")
+    logger.info(f"=== AnalytiX Backup Start | mode={mode} | timestamp={timestamp} ===")
 
     backup_results = []
 
@@ -322,7 +322,7 @@ def run_backup(mode: str = "daily"):
     duration = (datetime.now() - start_time).total_seconds()
     success = manifest["failed"] == 0
     logger.info(
-        f"=== GENQUANTAA Backup Complete | "
+        f"=== AnalytiX Backup Complete | "
         f"success={manifest['successful']} | failed={manifest['failed']} | "
         f"duration={duration:.1f}s ==="
     )
@@ -331,7 +331,7 @@ def run_backup(mode: str = "daily"):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="GENQUANTAA Disaster Recovery")
+    parser = argparse.ArgumentParser(description="AnalytiX Disaster Recovery")
     parser.add_argument("--mode", choices=["daily", "weekly", "monthly"], default="daily")
     parser.add_argument("--restore-test", action="store_true", help="Only run restore verification")
     args = parser.parse_args()

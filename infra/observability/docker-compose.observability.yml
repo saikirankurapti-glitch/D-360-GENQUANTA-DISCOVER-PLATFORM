@@ -1,7 +1,7 @@
 version: '3.8'
 
 # =============================================================================
-# GENQUANTAA DISCOVER – OBSERVABILITY STACK
+# AnalytiX DISCOVER – OBSERVABILITY STACK
 # OpenTelemetry Collector · Prometheus · Grafana · Jaeger · AlertManager
 # =============================================================================
 
@@ -101,7 +101,7 @@ services:
     container_name: genquantaa-grafana
     environment:
       - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-GenQuantaa2026!}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-AnalytiX2026!}
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
       - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor

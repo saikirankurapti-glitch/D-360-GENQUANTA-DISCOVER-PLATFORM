@@ -1,6 +1,6 @@
 {
   "__inputs": [{"name": "DS_PROMETHEUS", "label": "Prometheus", "type": "datasource", "pluginId": "prometheus"}],
-  "title": "GENQUANTAA Discover – Platform Overview",
+  "title": "AnalytiX – Platform Overview",
   "uid": "genquantaa-overview",
   "version": 1,
   "schemaVersion": 38,

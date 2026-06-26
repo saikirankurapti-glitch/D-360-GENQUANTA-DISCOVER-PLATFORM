@@ -247,7 +247,7 @@ export const ConfigPanel = () => {
           <div className="bg-sky-500/5 border border-sky-500/10 p-4 rounded-xl">
             <p className="text-xs text-sky-400 font-semibold mb-1">Inferred Key Join</p>
             <p className="text-[10px] text-slate-400 leading-relaxed">
-              GenQuantaa automatically compiles join constraints by referencing mapping keys (e.g. <code>Compound.id = Assay.compound_id</code>).
+              AnalytiX automatically compiles join constraints by referencing mapping keys (e.g. <code>Compound.id = Assay.compound_id</code>).
             </p>
           </div>
         </div>

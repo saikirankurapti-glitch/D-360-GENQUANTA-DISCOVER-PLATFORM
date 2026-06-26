@@ -57,7 +57,7 @@ class WorkflowGenerator:
                     "id": "node_4",
                     "type": "notification",
                     "position": {"x": 850, "y": 150},
-                    "data": {"label": "Email Results", "channel": "EMAIL", "recipient": "team@genquantaa.com"}
+                    "data": {"label": "Email Results", "channel": "EMAIL", "recipient": "team@analytix.com"}
                 }
             ]
             edges = [
@@ -103,7 +103,7 @@ class WorkflowGenerator:
 
     def _llm_generate(self, prompt: str) -> Dict[str, Any]:
         """Queries OpenAI GPT for a custom React Flow workflow JSON representation."""
-        system_prompt = """You are the AI Scientist Copilot workflow compiler for GENQUANTAA Discover.
+        system_prompt = """You are the AI Scientist Copilot workflow compiler for AnalytiX.
 Your job is to translate a user request into a valid JSON workflow definition:
 {
   "name": "Workflow Name",

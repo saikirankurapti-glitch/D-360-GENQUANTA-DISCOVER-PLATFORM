@@ -1,5 +1,5 @@
 """
-GENQUANTAA Discover – Load Testing Suite
+AnalytiX – Load Testing Suite
 =========================================
 Uses Locust to simulate concurrent scientific platform users.
 
@@ -61,7 +61,7 @@ class BaseDiscoverUser(HttpUser):
         suffix = random_suffix()
         resp = self.client.post(
             "http://localhost:8001/api/v1/auth/login",
-            data={"username": "scientist@genquantaa.com", "password": "ScientistPass123!"},
+            data={"username": "scientist@analytix.com", "password": "ScientistPass123!"},
             name="AUTH: Login"
         )
         if resp.status_code == 200:
@@ -70,7 +70,7 @@ class BaseDiscoverUser(HttpUser):
             # Try demo user
             resp2 = self.client.post(
                 "http://localhost:8001/api/v1/auth/login",
-                data={"username": "admin@genquantaa.com", "password": "AdminPass123!"},
+                data={"username": "admin@analytix.com", "password": "AdminPass123!"},
                 name="AUTH: Login (Admin fallback)"
             )
             if resp2.status_code == 200:
@@ -227,7 +227,7 @@ class AdminUser(BaseDiscoverUser):
     def on_start(self):
         resp = self.client.post(
             "http://localhost:8001/api/v1/auth/login",
-            data={"username": "admin@genquantaa.com", "password": "AdminPass123!"},
+            data={"username": "admin@analytix.com", "password": "AdminPass123!"},
             name="AUTH: Admin login"
         )
         if resp.status_code == 200:
@@ -277,7 +277,7 @@ class AdminUser(BaseDiscoverUser):
 @events.test_start.add_listener
 def on_test_start(environment, **kwargs):
     print("\n" + "="*60)
-    print("GENQUANTAA DISCOVER – Load Test Starting")
+    print("AnalytiX – Load Test Starting")
     print(f"Target: {environment.host}")
     print("="*60)
 
@@ -286,7 +286,7 @@ def on_test_start(environment, **kwargs):
 def on_test_stop(environment, **kwargs):
     stats = environment.stats
     print("\n" + "="*60)
-    print("GENQUANTAA DISCOVER – Load Test Complete")
+    print("AnalytiX – Load Test Complete")
     print(f"Total requests: {stats.total.num_requests}")
     print(f"Failures:       {stats.total.num_failures}")
     print(f"Failure rate:   {stats.total.fail_ratio:.2%}")

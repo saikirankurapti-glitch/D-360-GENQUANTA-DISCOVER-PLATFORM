@@ -1,5 +1,5 @@
 # =============================================================================
-# Prometheus Configuration – GENQUANTAA DISCOVER
+# Prometheus Configuration – AnalytiX DISCOVER
 # Scrapes all 10 microservices + infrastructure exporters
 # =============================================================================
 

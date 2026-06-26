@@ -1,7 +1,7 @@
 version: '3.8'
 
 # =============================================================================
-# GENQUANTAA DISCOVER – Application Services
+# AnalytiX DISCOVER – Application Services
 # Phase 8: All services migrated to PostgreSQL. SQLite removed.
 #
 # Copy .env.example → .env and fill real values before running.

@@ -41,7 +41,7 @@ ai_dir = os.path.join(base_dir, r"backend\services\ai_service")
 ai_log = os.path.join(base_dir, "logs", "ai_service_restart.log")
 ai_env = os.environ.copy()
 ai_env["DATABASE_URL"] = "postgresql://postgres:Saikiran%40123@localhost:5432/genquantaa_ai"
-ai_env["AUDIT_API_SECRET"] = "GENQUANTAA_AUDIT_INTERNAL_API_SECRET_2026"
+ai_env["AUDIT_API_SECRET"] = "AnalytiX_AUDIT_INTERNAL_API_SECRET_2026"
 ai_env["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "")
 
 cmd_ai = f'"{venv_python}" -m uvicorn app.main:app --port 8010 --host 0.0.0.0'

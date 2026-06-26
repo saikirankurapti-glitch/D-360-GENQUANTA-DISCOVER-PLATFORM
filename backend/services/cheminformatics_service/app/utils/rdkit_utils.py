@@ -1,7 +1,8 @@
 # app/utils/rdkit_utils.py
 from typing import Dict, Any, List, Optional
 import binascii
-from rdkit import Chem, DataStructs
+from rdkit import Chem, DataStructs, RDLogger
+RDLogger.DisableLog('rdApp.*')
 from rdkit.Chem import Descriptors, Lipinski, Draw, rdMolDescriptors
 from rdkit.Chem.rdRGroupDecomposition import RGroupDecompose, RGroupDecomposition, RGroupDecompositionParameters
 

@@ -21,7 +21,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    description="Scientific Informatics Platform Data Connector Microservice similar to D360 capabilities.",
+    description="AI-Powered Scientific Intelligence Platform Data Connector Microservice similar to D360 capabilities.",
     version="1.0.0",
     lifespan=lifespan,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",

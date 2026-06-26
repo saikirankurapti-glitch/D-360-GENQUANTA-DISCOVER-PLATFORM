@@ -13,6 +13,7 @@ import { EnterpriseIntegrationsPage } from '../features/connectors/pages/Enterpr
 import { CompoundExplorerPage } from '../features/compounds/pages/CompoundExplorerPage';
 import { SARDecompositionPage } from '../features/compounds/pages/SARDecompositionPage';
 import { AnalysisWorkbench } from '../features/analytics/pages/AnalysisWorkbench';
+import { AnalyticsDashboard } from '../features/analytics/pages/AnalyticsDashboard';
 import { AuditTrailPage } from '../features/admin/pages/AuditTrailPage';
 import { ComplianceConsolePage } from '../features/compliance/pages/ComplianceConsolePage';
 import { BioinformaticsDashboard } from '../features/bioinformatics/pages/BioinformaticsDashboard';
@@ -21,6 +22,7 @@ import { AlignmentPage } from '../features/bioinformatics/pages/AlignmentPage';
 import { ClusteringPage } from '../features/bioinformatics/pages/ClusteringPage';
 import { CopilotDashboard } from '../features/copilot/pages/CopilotDashboard';
 import { WorkflowDesignerPage } from '../features/workflow/pages/WorkflowDesignerPage';
+import { UserGuidePage } from '../pages/UserGuide';
 
 export const AppRoutes = () => {
   return (
@@ -37,6 +39,7 @@ export const AppRoutes = () => {
           <Route path="/metadata" element={<MetadataPage />} />
           <Route path="/query-builder" element={<QueryBuilderPage />} />
           <Route path="/copilot" element={<CopilotDashboard />} />
+          <Route path="/analytics-dashboard" element={<AnalyticsDashboard />} />
           <Route path="/analytics-workbench" element={<AnalysisWorkbench />} />
           <Route path="/compounds" element={<CompoundExplorerPage />} />
           <Route path="/sar" element={<SARDecompositionPage />} />
@@ -52,6 +55,7 @@ export const AppRoutes = () => {
           <Route path="/alignments" element={<AlignmentPage />} />
           <Route path="/clusters" element={<ClusteringPage />} />
           <Route path="/workflows" element={<WorkflowDesignerPage />} />
+          <Route path="/user-guide" element={<UserGuidePage />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Route>
       </Route>

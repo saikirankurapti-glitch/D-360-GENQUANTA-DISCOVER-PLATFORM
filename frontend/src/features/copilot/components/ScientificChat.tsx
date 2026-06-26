@@ -267,7 +267,7 @@ export const ScientificChat: React.FC<ScientificChatProps> = ({
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center space-y-4 max-w-sm mx-auto">
             <Brain className="h-10 w-10 text-sky-500/40" />
-            <h3 className="text-sm font-semibold text-white">GENQUANTAA Discover AI Copilot</h3>
+            <h3 className="text-sm font-semibold text-white">AnalytiX AI Copilot</h3>
             <p className="text-xs text-slate-400">
               Ask chemical structures, target activity (EGFR), assay throughputs, sequence alignment interpretations, or automate scientific workflows.
             </p>

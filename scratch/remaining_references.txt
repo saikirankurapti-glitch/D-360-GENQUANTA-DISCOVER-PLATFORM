@@ -1,0 +1,395 @@
+Found 393 remaining references:
+
+migration_report.md:34: | **genquantaa_auth.users** | `gen_auth` | 4 | **11** | ✅ Successfully Migrated |
+migration_report.md:35: | **genquantaa_metadata.metadata_fields** | `metadata` | 9 | **93** | ✅ Successfully Migrated |
+migration_report.md:36: | **genquantaa_metadata.metadata_entities** | `metadata` | 6 | **24** | ✅ Successfully Migrated |
+migration_report.md:37: | **genquantaa_metadata.metadata_values** | `metadata` | 32 | **116** | ✅ Successfully Migrated |
+migration_report.md:38: | **genquantaa_query.query_history** | `query` | 0 | **11** | ✅ Successfully Migrated |
+migration_report.md:39: | **genquantaa_query.query_templates** | `query` | 0 | **4** | ✅ Successfully Migrated |
+migration_report.md:40: | **genquantaa_connector.data_sources** | `connector` | 0 | **5** | ✅ Successfully Migrated |
+migration_report.md:41: | **genquantaa_connector.entities** | `connector` | 0 | **13** | ✅ Successfully Migrated |
+migration_report.md:42: | **genquantaa_connector.fields** | `connector` | 0 | **59** | ✅ Successfully Migrated |
+migration_report.md:43: | **genquantaa_audit.audit_logs** | `audit` | 3 | **84** | ✅ Successfully Migrated |
+migration_report.md:44: | **genquantaa_bioinfo.sequences** | `bio` | 0 | **2** | ✅ Successfully Migrated |
+migration_report.md:45: | **genquantaa_workflow.workflow_definitions** | `workflow` | 0 | **1** | ✅ Successfully Migrated |
+migration_report.md:46: | **genquantaa_ai.chat_messages** | `ai` | 2 | **6** | ✅ Successfully Migrated |
+start_services.ps1:19: $DB_AUTH        = "postgresql://${PG_USER}:${PG_PASS}@${PG_HOST}:${PG_PORT}/genquantaa_auth"
+start_services.ps1:20: $DB_METADATA    = "postgresql://${PG_USER}:${PG_PASS}@${PG_HOST}:${PG_PORT}/genquantaa_metadata"
+start_services.ps1:21: $DB_QUERY       = "postgresql://${PG_USER}:${PG_PASS}@${PG_HOST}:${PG_PORT}/genquantaa_query"
+start_services.ps1:23: $DB_CONNECTOR   = "postgresql://${PG_USER}:${PG_PASS}@${PG_HOST}:${PG_PORT}/genquantaa_connector"
+start_services.ps1:24: $DB_AUDIT       = "postgresql://${PG_USER}:${PG_PASS}@${PG_HOST}:${PG_PORT}/genquantaa_audit"
+start_services.ps1:25: $DB_LINEAGE     = "postgresql://${PG_USER}:${PG_PASS}@${PG_HOST}:${PG_PORT}/genquantaa_lineage"
+start_services.ps1:26: $DB_BIOINFO     = "postgresql://${PG_USER}:${PG_PASS}@${PG_HOST}:${PG_PORT}/genquantaa_bioinfo"
+start_services.ps1:27: $DB_WORKFLOW    = "postgresql://${PG_USER}:${PG_PASS}@${PG_HOST}:${PG_PORT}/genquantaa_workflow"
+start_services.ps1:28: $DB_AI          = "postgresql://${PG_USER}:${PG_PASS}@${PG_HOST}:${PG_PORT}/genquantaa_ai"
+backend\docker-compose.yml:35: - genquantaa-internal
+backend\docker-compose.yml:58: - genquantaa-internal
+backend\docker-compose.yml:71: - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/genquantaa_auth
+backend\docker-compose.yml:88: - genquantaa-internal
+backend\docker-compose.yml:98: - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/genquantaa_metadata
+backend\docker-compose.yml:112: - genquantaa-internal
+backend\docker-compose.yml:122: - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/genquantaa_query
+backend\docker-compose.yml:136: - genquantaa-internal
+backend\docker-compose.yml:160: - genquantaa-internal
+backend\docker-compose.yml:170: - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/genquantaa_connector
+backend\docker-compose.yml:185: - genquantaa-internal
+backend\docker-compose.yml:195: - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/genquantaa_audit
+backend\docker-compose.yml:210: - genquantaa-internal
+backend\docker-compose.yml:220: - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/genquantaa_lineage
+backend\docker-compose.yml:234: - genquantaa-internal
+backend\docker-compose.yml:244: - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/genquantaa_bioinfo
+backend\docker-compose.yml:258: - genquantaa-internal
+backend\docker-compose.yml:268: - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/genquantaa_workflow
+backend\docker-compose.yml:282: - genquantaa-internal
+backend\docker-compose.yml:292: - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/genquantaa_ai
+backend\docker-compose.yml:307: - genquantaa-internal
+backend\docker-compose.yml:314: genquantaa-internal:
+backend\docker-compose.yml:315: name: genquantaa-internal
+backend\db\init_databases.sql:8: CREATE DATABASE genquantaa_auth;
+backend\db\init_databases.sql:9: CREATE DATABASE genquantaa_metadata;
+backend\db\init_databases.sql:10: CREATE DATABASE genquantaa_query;
+backend\db\init_databases.sql:11: CREATE DATABASE genquantaa_connector;
+backend\db\init_databases.sql:12: CREATE DATABASE genquantaa_audit;
+backend\db\init_databases.sql:13: CREATE DATABASE genquantaa_lineage;
+backend\db\init_databases.sql:14: CREATE DATABASE genquantaa_bioinfo;
+backend\db\init_databases.sql:15: CREATE DATABASE genquantaa_workflow;
+backend\db\init_databases.sql:16: CREATE DATABASE genquantaa_ai;
+backend\db\init_databases.sql:22: GRANT ALL PRIVILEGES ON DATABASE genquantaa_auth TO postgres;
+backend\db\init_databases.sql:23: GRANT ALL PRIVILEGES ON DATABASE genquantaa_metadata TO postgres;
+backend\db\init_databases.sql:24: GRANT ALL PRIVILEGES ON DATABASE genquantaa_query TO postgres;
+backend\db\init_databases.sql:25: GRANT ALL PRIVILEGES ON DATABASE genquantaa_connector TO postgres;
+backend\db\init_databases.sql:26: GRANT ALL PRIVILEGES ON DATABASE genquantaa_audit TO postgres;
+backend\db\init_databases.sql:27: GRANT ALL PRIVILEGES ON DATABASE genquantaa_lineage TO postgres;
+backend\db\init_databases.sql:28: GRANT ALL PRIVILEGES ON DATABASE genquantaa_bioinfo TO postgres;
+backend\db\init_databases.sql:29: GRANT ALL PRIVILEGES ON DATABASE genquantaa_workflow TO postgres;
+backend\db\init_databases.sql:30: GRANT ALL PRIVILEGES ON DATABASE genquantaa_ai TO postgres;
+backend\db\migrate_sqlite_to_pg.py:42: "pg_db": "genquantaa_auth",
+backend\db\migrate_sqlite_to_pg.py:51: "pg_db": "genquantaa_metadata",
+backend\db\migrate_sqlite_to_pg.py:63: "pg_db": "genquantaa_query",
+backend\db\migrate_sqlite_to_pg.py:73: "pg_db": "genquantaa_connector",
+backend\db\migrate_sqlite_to_pg.py:94: "pg_db": "genquantaa_audit",
+backend\db\migrate_sqlite_to_pg.py:106: "pg_db": "genquantaa_lineage",
+backend\db\migrate_sqlite_to_pg.py:115: "pg_db": "genquantaa_bioinfo",
+backend\db\migrate_sqlite_to_pg.py:127: "pg_db": "genquantaa_workflow",
+backend\db\migrate_sqlite_to_pg.py:139: "pg_db": "genquantaa_ai",
+backend\db\schema_definitions.sql:2: # AnalytiX Discover – PostgreSQL Schema Definitions (single DB: genquantaa)
+backend\db\seed_data.py:24: "auth": "genquantaa_auth",
+backend\db\seed_data.py:25: "metadata": "genquantaa_metadata",
+backend\db\seed_data.py:26: "query": "genquantaa_query",
+backend\db\seed_data.py:28: "connector": "genquantaa_connector",
+backend\db\seed_data.py:29: "audit": "genquantaa_audit",
+backend\db\seed_data.py:30: "lineage": "genquantaa_lineage",
+backend\db\seed_data.py:31: "bio": "genquantaa_bioinfo",
+backend\db\seed_data.py:32: "workflow": "genquantaa_workflow",
+backend\db\seed_data.py:33: "ai": "genquantaa_ai"
+backend\db\seed_data.py:677: ("assistant", "Hello! I can certainly assist you with structure exploration. I am scanning the local `cheminformatics` database and joining with the `genquantaa_metadata` EAV catalog to look for structural analogues. Let me compile the Tanimoto similarity metrics.")
+backend\services\ai_service\app\core\config.py:7: DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/genquantaa_ai")
+backend\services\ai_service\app\services\validation_handlers.py:11: DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:Saikiran%40123@localhost:5432/genquantaa_ai")
+backend\services\ai_service\app\services\validation_handlers.py:118: cols, rows = run_query("genquantaa_metadata", sql)
+backend\services\ai_service\app\services\validation_handlers.py:130: "source": "metadata_service.genquantaa_metadata",
+backend\services\ai_service\app\services\validation_handlers.py:183: cols, rows = run_query("genquantaa_metadata", sql)
+backend\services\ai_service\app\services\validation_handlers.py:195: "source": "metadata_service.genquantaa_metadata",
+backend\services\ai_service\app\services\validation_handlers.py:246: cols, rows = run_query("genquantaa_workflow", sql)
+backend\services\ai_service\app\services\validation_handlers.py:249: md += "Here is the performance summary of our running pipelines from the `genquantaa_workflow` database:\n\n"
+backend\services\ai_service\app\services\validation_handlers.py:281: cols, rows = run_query("genquantaa_audit", sql)
+backend\services\ai_service\app\services\validation_handlers.py:332: cols, rows = run_query("genquantaa_metadata", sql)
+backend\services\ai_service\app\services\validation_handlers.py:344: "source": "metadata_service.genquantaa_metadata",
+backend\services\ai_service\app\services\validation_handlers.py:378: cols, rows = run_query("genquantaa_metadata", sql)
+backend\services\ai_service\app\services\validation_handlers.py:390: "source": "metadata_service.genquantaa_metadata",
+backend\services\ai_service\app\services\validation_handlers.py:412: cols, rows = run_query("genquantaa_bioinfo", sql)
+backend\services\ai_service\app\services\validation_handlers.py:415: md += "Bioinformatics sequence annotation frequencies from the `genquantaa_bioinfo` sequence analyzer:\n\n"
+backend\services\ai_service\app\services\validation_handlers.py:446: cols, rows = run_query("genquantaa_workflow", sql)
+backend\services\ai_service\app\services\validation_handlers.py:470: _, r = run_query("genquantaa_metadata", "SELECT COUNT(*) FROM metadata.metadata_entities WHERE entity_type='Compound';")
+backend\services\ai_service\app\services\validation_handlers.py:472: _, r = run_query("genquantaa_metadata", "SELECT COUNT(*) FROM metadata.metadata_entities WHERE entity_type='Assay';")
+backend\services\ai_service\app\services\validation_handlers.py:474: _, r = run_query("genquantaa_bioinfo", "SELECT COUNT(*) FROM bio.sequences;")
+backend\services\ai_service\app\services\validation_handlers.py:476: _, r = run_query("genquantaa_workflow", "SELECT COUNT(*) FROM workflow.workflow_runs;")
+backend\services\ai_service\app\services\validation_handlers.py:478: _, r = run_query("genquantaa_audit", "SELECT COUNT(*) FROM audit.audit_logs;")
+backend\services\audit_service\app\core\config.py:12: DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/genquantaa_audit")
+backend\services\auth_service\app\core\config.py:14: DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/genquantaa_auth")
+backend\services\bioinformatics_service\app\core\config.py:7: DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/genquantaa_bioinfo")
+backend\services\connector_service\app\core\config.py:14: "postgresql://postgres:postgres@localhost:5432/genquantaa_connector"
+backend\services\connector_service\k8s\deployment.yaml:38: image: genquantaa/connector-service:latest
+backend\services\lineage_service\app\core\config.py:7: DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/genquantaa_lineage")
+backend\services\metadata_service\app\core\config.py:8: DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/genquantaa_metadata")
+backend\services\query_service\app\api\endpoints\analytics.py:333: conn_meta = get_db_conn("genquantaa_metadata")
+backend\services\query_service\app\api\endpoints\analytics.py:365: conn_bio = get_db_conn("genquantaa_bioinfo")
+backend\services\query_service\app\api\endpoints\analytics.py:400: conn_wf = get_db_conn("genquantaa_workflow")
+backend\services\query_service\app\api\endpoints\analytics.py:448: conn_audit = get_db_conn("genquantaa_audit")
+backend\services\query_service\app\api\endpoints\analytics.py:493: conn_ai = get_db_conn("genquantaa_ai")
+backend\services\query_service\app\api\endpoints\analytics.py:516: conn_conn = get_db_conn("genquantaa_connector")
+backend\services\query_service\app\core\config.py:7: DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/genquantaa_query")
+backend\services\workflow_service\app\core\config.py:7: DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/genquantaa_workflow")
+backend\shared\observability.py:161: "platform": "genquantaa-helix",
+infra\dr\backup_dr.py:186: archive_name = f"genquantaa_backup_{mode}_{timestamp}.tar.gz"
+infra\dr\backup_dr.py:210: for archive in BACKUP_ROOT.glob(f"genquantaa_backup_{mode}_*.tar.gz"):
+infra\k8s\canary_deploy.py:32: namespace: genquantaa
+infra\k8s\canary_deploy.py:85: namespace: genquantaa
+infra\k8s\canary_deploy.py:105: namespace: genquantaa
+infra\k8s\canary_deploy.py:112: - host: api.genquantaa.com
+infra\k8s\configmap.yaml:4: name: genquantaa-config
+infra\k8s\configmap.yaml:5: namespace: genquantaa
+infra\k8s\configmap.yaml:7: app.kubernetes.io/part-of: genquantaa-discover
+infra\k8s\configmap.yaml:26: AUTH_DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/genquantaa_auth"
+infra\k8s\configmap.yaml:27: METADATA_DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/genquantaa_metadata"
+infra\k8s\configmap.yaml:28: QUERY_DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/genquantaa_query"
+infra\k8s\configmap.yaml:29: CONNECTOR_DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/genquantaa_connector"
+infra\k8s\configmap.yaml:30: AUDIT_DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/genquantaa_audit"
+infra\k8s\configmap.yaml:31: LINEAGE_DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/genquantaa_lineage"
+infra\k8s\configmap.yaml:32: BIOINFO_DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/genquantaa_bioinfo"
+infra\k8s\configmap.yaml:33: WORKFLOW_DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/genquantaa_workflow"
+infra\k8s\configmap.yaml:34: AI_DATABASE_URL: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/genquantaa_ai"
+infra\k8s\configmap.yaml:52: ALLOWED_ORIGINS: "https://discover.genquantaa.com"
+infra\k8s\generate_k8s_manifests.py:21: {"name": "auth-service",           "port": 8001, "replicas": 2, "cpu_req": "100m", "mem_req": "128Mi", "cpu_lim": "500m",  "mem_lim": "256Mi",  "max_replicas": 6,  "tier": "security",     "pg_db": "genquantaa_auth"},
+infra\k8s\generate_k8s_manifests.py:22: {"name": "metadata-service",       "port": 8002, "replicas": 2, "cpu_req": "100m", "mem_req": "128Mi", "cpu_lim": "500m",  "mem_lim": "256Mi",  "max_replicas": 8,  "tier": "data",         "pg_db": "genquantaa_metadata"},
+infra\k8s\generate_k8s_manifests.py:23: {"name": "query-service",          "port": 8003, "replicas": 2, "cpu_req": "200m", "mem_req": "256Mi", "cpu_lim": "1000m", "mem_lim": "512Mi",  "max_replicas": 10, "tier": "data",         "pg_db": "genquantaa_query"},
+infra\k8s\generate_k8s_manifests.py:25: {"name": "connector-service",      "port": 8005, "replicas": 2, "cpu_req": "100m", "mem_req": "128Mi", "cpu_lim": "500m",  "mem_lim": "256Mi",  "max_replicas": 6,  "tier": "integration",  "pg_db": "genquantaa_connector"},
+infra\k8s\generate_k8s_manifests.py:26: {"name": "audit-service",          "port": 8006, "replicas": 2, "cpu_req": "100m", "mem_req": "128Mi", "cpu_lim": "300m",  "mem_lim": "256Mi",  "max_replicas": 4,  "tier": "compliance",   "pg_db": "genquantaa_audit"},
+infra\k8s\generate_k8s_manifests.py:27: {"name": "lineage-service",        "port": 8007, "replicas": 2, "cpu_req": "100m", "mem_req": "128Mi", "cpu_lim": "500m",  "mem_lim": "256Mi",  "max_replicas": 4,  "tier": "governance",   "pg_db": "genquantaa_lineage"},
+infra\k8s\generate_k8s_manifests.py:28: {"name": "bioinformatics-service", "port": 8008, "replicas": 2, "cpu_req": "500m", "mem_req": "512Mi", "cpu_lim": "2000m", "mem_lim": "2048Mi", "max_replicas": 6,  "tier": "science",      "pg_db": "genquantaa_bioinfo"},
+infra\k8s\generate_k8s_manifests.py:29: {"name": "workflow-service",       "port": 8009, "replicas": 2, "cpu_req": "200m", "mem_req": "256Mi", "cpu_lim": "1000m", "mem_lim": "512Mi",  "max_replicas": 8,  "tier": "automation",   "pg_db": "genquantaa_workflow"},
+infra\k8s\generate_k8s_manifests.py:30: {"name": "ai-service",             "port": 8010, "replicas": 1, "cpu_req": "500m", "mem_req": "1024Mi","cpu_lim": "2000m", "mem_lim": "4096Mi", "max_replicas": 4,  "tier": "intelligence", "pg_db": "genquantaa_ai"},
+infra\k8s\generate_k8s_manifests.py:56: "valueFrom": {"secretKeyRef": {"name": "genquantaa-secrets", "key": sec["secret_key"]}}
+infra\k8s\generate_k8s_manifests.py:65: namespace: genquantaa
+infra\k8s\generate_k8s_manifests.py:69: app.kubernetes.io/part-of: genquantaa-helix
+infra\k8s\generate_k8s_manifests.py:108: name: genquantaa-config
+infra\k8s\generate_k8s_manifests.py:113: name: genquantaa-config
+infra\k8s\generate_k8s_manifests.py:120: name: genquantaa-db-credentials
+infra\k8s\generate_k8s_manifests.py:181: namespace: genquantaa
+infra\k8s\generate_k8s_manifests.py:198: namespace: genquantaa
+infra\k8s\generate_k8s_manifests.py:237: namespace: genquantaa
+infra\k8s\ingress.yaml:8: name: genquantaa-ingress
+infra\k8s\ingress.yaml:9: namespace: genquantaa
+infra\k8s\ingress.yaml:11: app.kubernetes.io/part-of: genquantaa-discover
+infra\k8s\ingress.yaml:23: nginx.ingress.kubernetes.io/cors-allow-origin: "https://discover.genquantaa.com"
+infra\k8s\ingress.yaml:47: - discover.genquantaa.com
+infra\k8s\ingress.yaml:48: - api.genquantaa.com
+infra\k8s\ingress.yaml:49: secretName: genquantaa-tls-cert
+infra\k8s\ingress.yaml:53: - host: discover.genquantaa.com
+infra\k8s\ingress.yaml:65: - host: api.genquantaa.com
+infra\k8s\namespace.yaml:4: name: genquantaa
+infra\k8s\namespace.yaml:6: name: genquantaa
+infra\k8s\postgres.yaml:11: namespace: genquantaa
+infra\k8s\postgres.yaml:15: app.kubernetes.io/part-of: genquantaa-discover
+infra\k8s\postgres.yaml:43: name: genquantaa-db-credentials
+infra\k8s\postgres.yaml:48: name: genquantaa-db-credentials
+infra\k8s\postgres.yaml:106: namespace: genquantaa
+infra\k8s\postgres.yaml:125: namespace: genquantaa
+infra\k8s\postgres.yaml:128: CREATE DATABASE genquantaa_auth;
+infra\k8s\postgres.yaml:129: CREATE DATABASE genquantaa_metadata;
+infra\k8s\postgres.yaml:130: CREATE DATABASE genquantaa_query;
+infra\k8s\postgres.yaml:131: CREATE DATABASE genquantaa_connector;
+infra\k8s\postgres.yaml:132: CREATE DATABASE genquantaa_audit;
+infra\k8s\postgres.yaml:133: CREATE DATABASE genquantaa_lineage;
+infra\k8s\postgres.yaml:134: CREATE DATABASE genquantaa_bioinfo;
+infra\k8s\postgres.yaml:135: CREATE DATABASE genquantaa_workflow;
+infra\k8s\postgres.yaml:136: CREATE DATABASE genquantaa_ai;
+infra\k8s\postgres.yaml:137: GRANT ALL PRIVILEGES ON DATABASE genquantaa_auth TO postgres;
+infra\k8s\postgres.yaml:138: GRANT ALL PRIVILEGES ON DATABASE genquantaa_metadata TO postgres;
+infra\k8s\postgres.yaml:139: GRANT ALL PRIVILEGES ON DATABASE genquantaa_query TO postgres;
+infra\k8s\postgres.yaml:140: GRANT ALL PRIVILEGES ON DATABASE genquantaa_connector TO postgres;
+infra\k8s\postgres.yaml:141: GRANT ALL PRIVILEGES ON DATABASE genquantaa_audit TO postgres;
+infra\k8s\postgres.yaml:142: GRANT ALL PRIVILEGES ON DATABASE genquantaa_lineage TO postgres;
+infra\k8s\postgres.yaml:143: GRANT ALL PRIVILEGES ON DATABASE genquantaa_bioinfo TO postgres;
+infra\k8s\postgres.yaml:144: GRANT ALL PRIVILEGES ON DATABASE genquantaa_workflow TO postgres;
+infra\k8s\postgres.yaml:145: GRANT ALL PRIVILEGES ON DATABASE genquantaa_ai TO postgres;
+infra\k8s\postgres.yaml:153: namespace: genquantaa
+infra\k8s\secrets.yaml:5: #   kubectl create secret generic genquantaa-secrets \
+infra\k8s\secrets.yaml:17: name: genquantaa-secrets
+infra\k8s\secrets.yaml:18: namespace: genquantaa
+infra\k8s\secrets.yaml:20: app.kubernetes.io/part-of: genquantaa-discover
+infra\k8s\secrets.yaml:49: name: genquantaa-db-credentials
+infra\k8s\secrets.yaml:50: namespace: genquantaa
+infra\k8s\secrets.yaml:52: app.kubernetes.io/part-of: genquantaa-discover
+infra\k8s\services\ai-service.yaml:7: namespace: genquantaa
+infra\k8s\services\ai-service.yaml:11: app.kubernetes.io/part-of: genquantaa-discover
+infra\k8s\services\ai-service.yaml:50: name: genquantaa-config
+infra\k8s\services\ai-service.yaml:55: name: genquantaa-config
+infra\k8s\services\ai-service.yaml:107: namespace: genquantaa
+infra\k8s\services\ai-service.yaml:124: namespace: genquantaa
+infra\k8s\services\ai-service.yaml:163: namespace: genquantaa
+infra\k8s\services\audit-service.yaml:7: namespace: genquantaa
+infra\k8s\services\audit-service.yaml:11: app.kubernetes.io/part-of: genquantaa-discover
+infra\k8s\services\audit-service.yaml:50: name: genquantaa-config
+infra\k8s\services\audit-service.yaml:55: name: genquantaa-config
+infra\k8s\services\audit-service.yaml:60: name: genquantaa-secrets
+infra\k8s\services\audit-service.yaml:112: namespace: genquantaa
+infra\k8s\services\audit-service.yaml:129: namespace: genquantaa
+infra\k8s\services\audit-service.yaml:168: namespace: genquantaa
+infra\k8s\services\auth-service.yaml:11: namespace: genquantaa
+infra\k8s\services\auth-service.yaml:14: app.kubernetes.io/part-of: genquantaa-discover
+infra\k8s\services\auth-service.yaml:61: name: genquantaa-secrets
+infra\k8s\services\auth-service.yaml:66: name: genquantaa-secrets
+infra\k8s\services\auth-service.yaml:71: name: genquantaa-config
+infra\k8s\services\auth-service.yaml:76: name: genquantaa-config
+infra\k8s\services\auth-service.yaml:130: namespace: genquantaa
+infra\k8s\services\auth-service.yaml:149: namespace: genquantaa
+infra\k8s\services\auth-service.yaml:190: namespace: genquantaa
+infra\k8s\services\bioinformatics-service.yaml:7: namespace: genquantaa
+infra\k8s\services\bioinformatics-service.yaml:11: app.kubernetes.io/part-of: genquantaa-discover
+infra\k8s\services\bioinformatics-service.yaml:50: name: genquantaa-config
+infra\k8s\services\bioinformatics-service.yaml:55: name: genquantaa-config
+infra\k8s\services\bioinformatics-service.yaml:107: namespace: genquantaa
+infra\k8s\services\bioinformatics-service.yaml:124: namespace: genquantaa
+infra\k8s\services\bioinformatics-service.yaml:163: namespace: genquantaa
+infra\k8s\services\cheminformatics-service.yaml:7: namespace: genquantaa
+infra\k8s\services\cheminformatics-service.yaml:11: app.kubernetes.io/part-of: genquantaa-discover
+infra\k8s\services\cheminformatics-service.yaml:50: name: genquantaa-config
+infra\k8s\services\cheminformatics-service.yaml:55: name: genquantaa-config
+infra\k8s\services\cheminformatics-service.yaml:107: namespace: genquantaa
+infra\k8s\services\cheminformatics-service.yaml:124: namespace: genquantaa
+infra\k8s\services\cheminformatics-service.yaml:163: namespace: genquantaa
+infra\k8s\services\connector-service.yaml:7: namespace: genquantaa
+infra\k8s\services\connector-service.yaml:11: app.kubernetes.io/part-of: genquantaa-discover
+infra\k8s\services\connector-service.yaml:50: name: genquantaa-config
+infra\k8s\services\connector-service.yaml:55: name: genquantaa-config
+infra\k8s\services\connector-service.yaml:60: name: genquantaa-secrets
+infra\k8s\services\connector-service.yaml:112: namespace: genquantaa
+infra\k8s\services\connector-service.yaml:129: namespace: genquantaa
+infra\k8s\services\connector-service.yaml:168: namespace: genquantaa
+infra\k8s\services\lineage-service.yaml:7: namespace: genquantaa
+infra\k8s\services\lineage-service.yaml:11: app.kubernetes.io/part-of: genquantaa-discover
+infra\k8s\services\lineage-service.yaml:50: name: genquantaa-config
+infra\k8s\services\lineage-service.yaml:55: name: genquantaa-config
+infra\k8s\services\lineage-service.yaml:107: namespace: genquantaa
+infra\k8s\services\lineage-service.yaml:124: namespace: genquantaa
+infra\k8s\services\lineage-service.yaml:163: namespace: genquantaa
+infra\k8s\services\metadata-service.yaml:7: namespace: genquantaa
+infra\k8s\services\metadata-service.yaml:11: app.kubernetes.io/part-of: genquantaa-discover
+infra\k8s\services\metadata-service.yaml:50: name: genquantaa-config
+infra\k8s\services\metadata-service.yaml:55: name: genquantaa-config
+infra\k8s\services\metadata-service.yaml:107: namespace: genquantaa
+infra\k8s\services\metadata-service.yaml:124: namespace: genquantaa
+infra\k8s\services\metadata-service.yaml:163: namespace: genquantaa
+infra\k8s\services\query-service.yaml:7: namespace: genquantaa
+infra\k8s\services\query-service.yaml:11: app.kubernetes.io/part-of: genquantaa-discover
+infra\k8s\services\query-service.yaml:50: name: genquantaa-config
+infra\k8s\services\query-service.yaml:55: name: genquantaa-config
+infra\k8s\services\query-service.yaml:107: namespace: genquantaa
+infra\k8s\services\query-service.yaml:124: namespace: genquantaa
+infra\k8s\services\query-service.yaml:163: namespace: genquantaa
+infra\k8s\services\workflow-service.yaml:7: namespace: genquantaa
+infra\k8s\services\workflow-service.yaml:11: app.kubernetes.io/part-of: genquantaa-discover
+infra\k8s\services\workflow-service.yaml:50: name: genquantaa-config
+infra\k8s\services\workflow-service.yaml:55: name: genquantaa-config
+infra\k8s\services\workflow-service.yaml:107: namespace: genquantaa
+infra\k8s\services\workflow-service.yaml:124: namespace: genquantaa
+infra\k8s\services\workflow-service.yaml:163: namespace: genquantaa
+infra\observability\docker-compose.observability.yml:15: container_name: genquantaa-otel-collector
+infra\observability\docker-compose.observability.yml:35: container_name: genquantaa-jaeger
+infra\observability\docker-compose.observability.yml:57: container_name: genquantaa-prometheus
+infra\observability\docker-compose.observability.yml:83: container_name: genquantaa-alertmanager
+infra\observability\docker-compose.observability.yml:101: container_name: genquantaa-grafana
+infra\observability\docker-compose.observability.yml:109: - GF_SERVER_ROOT_URL=https://metrics.genquantaa.internal
+infra\observability\docker-compose.observability.yml:128: container_name: genquantaa-node-exporter
+infra\observability\docker-compose.observability.yml:145: container_name: genquantaa-cadvisor
+infra\observability\docker-compose.observability.yml:167: name: genquantaa-observability
+infra\observability\otel-collector-config.yaml:43: value: genquantaa-discover
+infra\observability\otel-collector-config.yaml:66: namespace: genquantaa
+infra\observability\grafana\dashboards\platform-overview.json:4: "uid": "genquantaa-overview",
+infra\observability\grafana\dashboards\platform-overview.json:11: "tags": ["genquantaa", "overview"],
+infra\observability\grafana\provisioning\dashboards\dashboards.yml:4: - name: 'genquantaa-dashboards'
+infra\observability\prometheus\alertmanager.yml:3: smtp_smarthost: 'smtp.genquantaa.internal:587'
+infra\observability\prometheus\alertmanager.yml:40: channel: '#genquantaa-alerts'
+infra\observability\prometheus\prometheus.yml:10: cluster: 'genquantaa-production'
+reports\analytics_verification_report.md:14: QService <--> DB1[(genquantaa_metadata)]
+reports\analytics_verification_report.md:15: QService <--> DB2[(genquantaa_bioinfo)]
+reports\analytics_verification_report.md:16: QService <--> DB3[(genquantaa_workflow)]
+reports\analytics_verification_report.md:17: QService <--> DB4[(genquantaa_audit)]
+reports\analytics_verification_report.md:18: QService <--> DB5[(genquantaa_ai)]
+scratch\analyze_pdf.py:4: pdf_path = r"c:\Users\saiki\GENQUANTAA DISCOVER\backend\discovery pplatfoem.pdf"
+scratch\audit_endpoints.py:22: "auth": "genquantaa_auth",
+scratch\audit_endpoints.py:23: "metadata": "genquantaa_metadata",
+scratch\audit_endpoints.py:24: "query": "genquantaa_query",
+scratch\audit_endpoints.py:26: "connectors": "genquantaa_connector",
+scratch\audit_endpoints.py:27: "audit": "genquantaa_audit",
+scratch\audit_endpoints.py:28: "lineage": "genquantaa_lineage",
+scratch\audit_endpoints.py:29: "bioinformatics": "genquantaa_bioinfo",
+scratch\audit_endpoints.py:30: "workflow": "genquantaa_workflow",
+scratch\audit_endpoints.py:31: "ai": "genquantaa_ai"
+scratch\check_all_logs.py:3: logs_dir = r"c:\Users\saiki\GENQUANTAA DISCOVER\logs"
+scratch\check_auth_logs.py:1: with open(r"c:\Users\saiki\GENQUANTAA DISCOVER\logs\auth_service.log", "r", encoding="utf-8", errors="ignore") as f:
+scratch\check_db.py:6: dotenv_path = r"c:\Users\saiki\GENQUANTAA DISCOVER\backend\.env"
+scratch\check_dbs.py:9: cur.execute("SELECT datname FROM pg_database WHERE datname LIKE 'genquantaa_%' OR datname = 'cheminformatics' OR datname = 'postgres';")
+scratch\check_db_locks.py:4: conn = psycopg2.connect(host="localhost", port="5432", user="postgres", password="Saikiran@123", database="genquantaa_auth")
+scratch\check_lineage.py:8: database="genquantaa_lineage"
+scratch\check_lineage.py:12: # List tables in genquantaa_lineage database
+scratch\check_lineage.py:15: print("Tables in genquantaa_lineage:", tables)
+scratch\check_lineage_columns.py:8: database="genquantaa_lineage"
+scratch\check_max_conn.py:3: conn = psycopg2.connect(host="localhost", port="5432", user="postgres", password="Saikiran@123", database="genquantaa_auth")
+scratch\check_templates.py:6: db_url = "postgresql://postgres:Saikiran@123@localhost:5432/genquantaa_query"
+scratch\check_users.py:15: database="genquantaa_auth"
+scratch\cleanup_old_branding.py:3: WORKSPACE_DIR = r"c:\Users\saiki\GENQUANTAA DISCOVER"
+scratch\cleanup_old_branding.py:8: # 1. Delete *GENQUANTAA* files in docs/ and frontend/public/docs/
+scratch\cleanup_old_branding.py:17: if "GENQUANTAA" in file:
+scratch\cleanup_old_branding.py:22: # 2. Rename frontend/public/helix_platform.pdf to frontend/public/analytix_platform.pdf
+scratch\cleanup_old_branding.py:23: old_platform_pdf = os.path.join(WORKSPACE_DIR, "frontend", "public", "helix_platform.pdf")
+scratch\cleanup_old_branding.py:30: print(f"Renamed: public/helix_platform.pdf -> public/analytix_platform.pdf")
+scratch\extract_pdf.py:4: pdf_path = r"c:\Users\saiki\GENQUANTAA DISCOVER\backend\discovery pplatfoem.pdf"
+scratch\extract_pdf.py:5: output_path = r"c:\Users\saiki\GENQUANTAA DISCOVER\scratch\discovery_platform_text.txt"
+scratch\extract_pdf_fitz.py:4: pdf_path = r"c:\Users\saiki\GENQUANTAA DISCOVER\backend\discovery pplatfoem.pdf"
+scratch\extract_pdf_fitz.py:5: output_path = r"c:\Users\saiki\GENQUANTAA DISCOVER\scratch\discovery_platform_text_fitz.txt"
+scratch\fix_paths.py:4: root_dir = r"c:\Users\saiki\GENQUANTAA DISCOVER"
+scratch\fix_paths.py:29: replacement = r"c:\Users\saiki\GENQUANTAA DISCOVER"
+scratch\fix_workspace_paths.py:3: WORKSPACE_DIR = r"c:\Users\saiki\GENQUANTAA DISCOVER"
+scratch\fix_workspace_paths.py:29: content = content.replace(r"c:\Users\saiki\AnalytiX DISCOVER", r"c:\Users\saiki\GENQUANTAA DISCOVER")
+scratch\fix_workspace_paths.py:32: content = content.replace(r"c:/Users/saiki/AnalytiX DISCOVER", r"c:/Users/saiki/GENQUANTAA DISCOVER")
+scratch\fix_workspace_paths.py:35: content = content.replace(r"c:\\Users\\saiki\\AnalytiX DISCOVER", r"c:\\Users\\saiki\\GENQUANTAA DISCOVER")
+scratch\generate_test_report_pdf.py:11: WORKSPACE_DIR = r"c:\Users\saiki\GENQUANTAA DISCOVER"
+scratch\inspect_all_dbs.py:4: 'genquantaa_auth', 'genquantaa_metadata', 'genquantaa_query',
+scratch\inspect_all_dbs.py:5: 'cheminformatics', 'genquantaa_connector', 'genquantaa_audit',
+scratch\inspect_all_dbs.py:6: 'genquantaa_lineage', 'genquantaa_bioinfo', 'genquantaa_workflow', 'genquantaa_ai'
+scratch\inspect_db.py:10: "genquantaa_auth",
+scratch\inspect_db.py:11: "genquantaa_metadata",
+scratch\inspect_db.py:12: "genquantaa_query",
+scratch\inspect_db.py:14: "genquantaa_connector",
+scratch\inspect_db.py:15: "genquantaa_audit",
+scratch\inspect_db.py:16: "genquantaa_lineage",
+scratch\inspect_db.py:17: "genquantaa_bioinfo",
+scratch\inspect_db.py:18: "genquantaa_workflow",
+scratch\inspect_db.py:19: "genquantaa_ai"
+scratch\list_connectors.py:9: database="genquantaa_connector"
+scratch\list_connector_credentials.py:9: database="genquantaa_connector"
+scratch\list_general_metadata_fields.py:9: database="genquantaa_metadata"
+scratch\list_metadata_fields.py:9: database="genquantaa_metadata"
+scratch\list_report_data.py:4: data_dir = r"c:\Users\saiki\GENQUANTAA DISCOVER\frontend\playwright-report\data"
+scratch\parse_test_results.py:3: results_dir = r"c:\Users\saiki\GENQUANTAA DISCOVER\frontend\test-results"
+scratch\print_all_failures.py:4: results_dir = r"c:\Users\saiki\GENQUANTAA DISCOVER\frontend\test-results"
+scratch\render_pdf_pages.py:4: pdf_path = r"c:\Users\saiki\GENQUANTAA DISCOVER\backend\discovery pplatfoem.pdf"
+scratch\render_pdf_pages.py:5: output_dir = r"c:\Users\saiki\GENQUANTAA DISCOVER\frontend\public\manual_pages"
+scratch\restart_ai.py:25: base_dir = r"c:\Users\saiki\GENQUANTAA DISCOVER"
+scratch\restart_ai.py:31: env["DATABASE_URL"] = "postgresql://postgres:Saikiran%40123@localhost:5432/genquantaa_ai"
+scratch\restart_connector.py:25: base_dir = r"c:\Users\saiki\GENQUANTAA DISCOVER"
+scratch\restart_connector.py:31: env["DATABASE_URL"] = "postgresql://postgres:Saikiran%40123@localhost:5432/genquantaa_connector"
+scratch\restore_ports.py:25: base_dir = r"c:\Users\saiki\GENQUANTAA DISCOVER"
+scratch\restore_ports.py:32: query_env["DATABASE_URL"] = "postgresql://postgres:Saikiran%40123@localhost:5432/genquantaa_query"
+scratch\restore_ports.py:43: ai_env["DATABASE_URL"] = "postgresql://postgres:Saikiran%40123@localhost:5432/genquantaa_ai"
+scratch\run_all_queries.py:7: DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:Saikiran%40123@localhost:5432/genquantaa_ai")
+scratch\run_all_queries.py:73: cols, rows = run_query("genquantaa_metadata", q1_sql)
+scratch\run_all_queries.py:121: cols, rows = run_query("genquantaa_metadata", q2_sql)
+scratch\run_all_queries.py:165: cols, rows = run_query("genquantaa_workflow", q4_sql)
+scratch\run_all_queries.py:185: cols, rows = run_query("genquantaa_audit", q5_sql)
+scratch\run_all_queries.py:218: cols, rows = run_query("genquantaa_metadata", q6_sql)
+scratch\run_all_queries.py:249: cols, rows = run_query("genquantaa_metadata", q7_sql)
+scratch\run_all_queries.py:267: cols, rows = run_query("genquantaa_bioinfo", q8_sql)
+scratch\run_all_queries.py:285: cols, rows = run_query("genquantaa_workflow", q9_sql)
+scratch\run_all_queries.py:295: _, r = run_query("genquantaa_metadata", "SELECT COUNT(*) FROM metadata.metadata_entities WHERE entity_type='Compound';")
+scratch\run_all_queries.py:297: _, r = run_query("genquantaa_metadata", "SELECT COUNT(*) FROM metadata.metadata_entities WHERE entity_type='Assay';")
+scratch\run_all_queries.py:299: _, r = run_query("genquantaa_bioinfo", "SELECT COUNT(*) FROM bio.sequences;")
+scratch\run_all_queries.py:301: _, r = run_query("genquantaa_workflow", "SELECT COUNT(*) FROM workflow.workflow_runs;")
+scratch\run_all_queries.py:303: _, r = run_query("genquantaa_audit", "SELECT COUNT(*) FROM audit.audit_logs;")
+scratch\run_all_tests.py:17: base_dir = r"c:\Users\saiki\GENQUANTAA DISCOVER"
+scratch\test_pairwise_endpoint.py:6: sys.path.append(r"c:\Users\saiki\GENQUANTAA DISCOVER\backend\services\bioinformatics_service")
+scratch\test_pairwise_endpoint.py:13: engine = create_engine("postgresql://postgres:Saikiran%40123@localhost:5432/genquantaa_bioinfo")
+scratch\test_query_ai.py:5: sys.path.append(r"c:\Users\saiki\GENQUANTAA DISCOVER\backend\services\connector_service")
+scratch\test_query_ai.py:11: os.environ["DATABASE_URL"] = "postgresql://postgres:Saikiran%40123@localhost:5432/genquantaa_connector"
+scratch\update_passwords.py:23: database="genquantaa_auth"
+scratch\verify_counts.py:9: "auth": "genquantaa_auth",
+scratch\verify_counts.py:10: "metadata": "genquantaa_metadata",
+scratch\verify_counts.py:11: "query": "genquantaa_query",
+scratch\verify_counts.py:13: "connector": "genquantaa_connector",
+scratch\verify_counts.py:14: "audit": "genquantaa_audit",
+scratch\verify_counts.py:15: "lineage": "genquantaa_lineage",
+scratch\verify_counts.py:16: "bio": "genquantaa_bioinfo",
+scratch\verify_counts.py:17: "workflow": "genquantaa_workflow",
+scratch\verify_counts.py:18: "ai": "genquantaa_ai"
+scratch\view_lineage_lines.py:1: with open(r"c:\Users\saiki\GENQUANTAA DISCOVER\backend\db\seed_data.py", "r", encoding="utf-8") as f:

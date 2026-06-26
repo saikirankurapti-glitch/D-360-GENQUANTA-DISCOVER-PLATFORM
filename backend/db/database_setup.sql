@@ -1,5 +1,5 @@
 -- ==============================================================
--- GENQUANTAA Discover – Supabase PostgreSQL Database Setup
+-- AnalytiX Discover – Supabase PostgreSQL Database Setup
 -- ==============================================================
 -- This script creates schemas and tables that EXACTLY match the
 -- SQLAlchemy models in the backend services.

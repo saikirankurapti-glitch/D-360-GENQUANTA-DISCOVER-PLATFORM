@@ -124,7 +124,7 @@ class QueryPlanner:
 
     def _llm_plan_query(self, query: str) -> Dict[str, Any]:
         """Calls OpenAI GPT model to dynamically generate a federated plan based on schema metadata."""
-        system_prompt = """You are the AI Scientist Copilot query planner for GENQUANTAA Discover.
+        system_prompt = """You are the AI Scientist Copilot query planner for AnalytiX.
 Your job is to translate a natural language request from a scientist into a structured JSON execution plan.
 
 Available services:

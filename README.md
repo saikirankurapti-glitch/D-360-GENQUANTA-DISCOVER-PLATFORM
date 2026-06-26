@@ -1,6 +1,6 @@
-# GENQUANTAA Discover
+# AnalytiX
 
-GENQUANTAA Discover is an enterprise-grade Scientific Informatics Platform modeled after Certara D360 capabilities. It provides researchers with unified metadata federation, query building, cheminformatics analysis, bioinformatics sequence explorer, lineage tracking, workflow orchestration, audit trails, and an integrated AI Scientist Copilot.
+AnalytiX is an enterprise-grade AI-Powered Scientific Intelligence Platform modeled after Certara D360 capabilities. It provides researchers with unified metadata federation, query building, cheminformatics analysis, bioinformatics sequence explorer, lineage tracking, workflow orchestration, audit trails, and an integrated AI Scientist Copilot.
 
 ---
 
@@ -106,5 +106,5 @@ If you prefer to start services individually:
 
 Use the following default administrator credentials to log into the platform locally:
 
-- **Username:** `admin@genquantaa.com`
-- **Password:** `GenQuantaaDiscover2026!`
+- **Username:** `admin@analytix.com`
+- **Password:** `AnalytiXDiscover2026!`

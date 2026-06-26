@@ -248,15 +248,15 @@ def seed_all():
         cur.execute("INSERT INTO gen_auth.role_permissions (role_id, permission_id) VALUES (%s, %s);", (scientist_role_id, pid))
         
     # Insert Users
-    hashed_pwd = "$2b$12$6K/z5T.U7i2Fmgp.mB199O1X/qVzE.W4G8oex1XQy3ZtN3t32UreS"
+    hashed_pwd = "$2b$12$lTVakKs.wX/gxXB4pxsuXuEFudL2UPRKOGjbFl/pTQxeSp2l0Y4v6"
     
     cur.execute("INSERT INTO gen_auth.users (email, hashed_password, full_name, role, is_active) VALUES (%s, %s, %s, %s, %s) RETURNING id;",
-                ("admin@genquantaa.com", hashed_pwd, "Dr. Sarah Connor", "Administrator", True))
+                ("admin@analytix.com", hashed_pwd, "Dr. Sarah Connor", "Administrator", True))
     admin_user_id = cur.fetchone()[0]
     cur.execute("INSERT INTO gen_auth.user_roles (user_id, role_id) VALUES (%s, %s);", (admin_user_id, admin_role_id))
     
     cur.execute("INSERT INTO gen_auth.users (email, hashed_password, full_name, role, is_active) VALUES (%s, %s, %s, %s, %s) RETURNING id;",
-                ("scientist@genquantaa.com", hashed_pwd, "Dr. John Connor", "Scientist", True))
+                ("scientist@analytix.com", hashed_pwd, "Dr. John Connor", "Scientist", True))
     scientist_user_id = cur.fetchone()[0]
     cur.execute("INSERT INTO gen_auth.user_roles (user_id, role_id) VALUES (%s, %s);", (scientist_user_id, scientist_role_id))
     
@@ -563,7 +563,7 @@ consensus        ************************************************************"""
             if status == "COMPLETED" or (status == "RUNNING" and step_statuses[3] == "COMPLETED"):
                 cur.execute(
                     "INSERT INTO workflow.workflow_approvals (run_id, step_id, role_required, status, requested_at, completed_at, approved_by, signature_hash, comment) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);",
-                    (run_id, "step_4", "Administrator", "APPROVED", datetime.utcnow() - timedelta(hours=1), datetime.utcnow(), "admin@genquantaa.com", "sig_hash_chain_demo_" + str(run_id), "Verified all experimental parameters and compounds align with QA standards.")
+                    (run_id, "step_4", "Administrator", "APPROVED", datetime.utcnow() - timedelta(hours=1), datetime.utcnow(), "admin@analytix.com", "sig_hash_chain_demo_" + str(run_id), "Verified all experimental parameters and compounds align with QA standards.")
                 )
                 
     conn.commit()
@@ -582,7 +582,7 @@ consensus        ************************************************************"""
     esig_ids = []
     for idx in range(25):
         timestamp = datetime.utcnow() - timedelta(days=idx)
-        username = "admin@genquantaa.com" if idx % 2 == 0 else "scientist@genquantaa.com"
+        username = "admin@analytix.com" if idx % 2 == 0 else "scientist@analytix.com"
         sig_hash = hashlib.sha256(f"{username}|{timestamp.isoformat()}|signature_manifest".encode("utf-8")).hexdigest()
         
         cur.execute(
@@ -605,7 +605,7 @@ consensus        ************************************************************"""
         sig_hash = hashlib.sha256(f"{ent_key}|version_{idx}".encode("utf-8")).hexdigest()
         cur.execute(
             "INSERT INTO audit.entity_versions (entity_type, entity_id, version, data_json, modified_by, modified_at, change_summary, is_deleted, hash) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;",
-            ("MetadataEntity", ent_key, 1, json.dumps({"entity_key": ent_key, "entity_type": "Compound", "name": f"Compound {idx+1}"}), "admin@genquantaa.com", datetime.utcnow(), "Initial insert", 0, sig_hash)
+            ("MetadataEntity", ent_key, 1, json.dumps({"entity_key": ent_key, "entity_type": "Compound", "name": f"Compound {idx+1}"}), "admin@analytix.com", datetime.utcnow(), "Initial insert", 0, sig_hash)
         )
         entity_ver_ids.append(cur.fetchone()[0])
         
@@ -630,7 +630,7 @@ consensus        ************************************************************"""
         # Use exact string conversion logic for chain verification compatibility
         timestamp_str = timestamp.isoformat()
         user_id = "admin_id_1" if idx % 2 == 0 else "scientist_id_2"
-        username = "admin@genquantaa.com" if idx % 2 == 0 else "scientist@genquantaa.com"
+        username = "admin@analytix.com" if idx % 2 == 0 else "scientist@analytix.com"
         
         # Calculate valid chain hash
         log_hash = get_audit_trail_hash(
@@ -684,7 +684,7 @@ consensus        ************************************************************"""
         # Session 3: Workflow Run Audit & Compliance
         [
             ("user", "Can you verify if our latest Lead Optimization Screening workflow run completed successfully and was electronically signed off?"),
-            ("assistant", "I am querying the Workflow and Compliance audit databases. Workflow definition 'Lead Optimization Screening' has a completed run (ID 24) on the server. Manager sign-off step was approved and electronically signed by admin@genquantaa.com with cryptographic signature hash chain verification.")
+            ("assistant", "I am querying the Workflow and Compliance audit databases. Workflow definition 'Lead Optimization Screening' has a completed run (ID 24) on the server. Manager sign-off step was approved and electronically signed by admin@analytix.com with cryptographic signature hash chain verification.")
         ],
         # Session 4: SAR Matrix Analysis
         [
@@ -737,7 +737,7 @@ consensus        ************************************************************"""
     for t_name, t_desc, t_layout, t_sql in templates:
         cur.execute(
             "INSERT INTO query.query_templates (name, description, layout_json, sql_preview, created_by) VALUES (%s, %s, %s, %s, %s);",
-            (t_name, t_desc, t_layout, t_sql, "admin@genquantaa.com")
+            (t_name, t_desc, t_layout, t_sql, "admin@analytix.com")
         )
         
     # Query History
@@ -757,8 +757,49 @@ consensus        ************************************************************"""
     conn.close()
     print("QUERY & DASHBOARD service templates seeded successfully.")
 
+    # -----------------------------------------------------------------
+    # 9. LINEAGE SERVICE SEEDING
+    # -----------------------------------------------------------------
+    print("Seeding LINEAGE service...")
+    conn = get_connection("lineage")
+    cur = conn.cursor()
+    cur.execute("TRUNCATE TABLE lineage.lineage_edges, lineage.lineage_nodes CASCADE;")
+    
+    # Insert lineage nodes
+    nodes = [
+        ("node_ds_1", "datasource", "PostgreSQL Core DB", '{"type":"postgres","table":"compounds"}'),
+        ("node_q_1", "query", "Kinase Similarity Join", '{"engine":"Trino","sql":"SELECT * FROM compounds JOIN assays..."}'),
+        ("node_d_1", "dataset", "Active EGFR Inhibitors", '{"row_count":125,"columns":["entity_key","ic50_nm"]}'),
+        ("node_a_1", "analytics", "SAR Matrix Decomposition", '{"method":"RDKit scaffold decomp"}'),
+        ("node_v_1", "visualization", "IC50 Inhibition Curve", '{"chart_type":"scatter_plotly"}'),
+        ("node_e_1", "export", "FDA Submission CSV", '{"checksum":"sha256_abcdef123456"}')
+    ]
+    for nid, ntype, nname, ndetails in nodes:
+        cur.execute(
+            "INSERT INTO lineage.lineage_nodes (id, type, name, details_json, created_at) VALUES (%s, %s, %s, %s, %s);",
+            (nid, ntype, nname, ndetails, datetime.utcnow())
+        )
+        
+    # Insert lineage edges
+    edges = [
+        ("edge_1", "node_ds_1", "node_q_1", "flow"),
+        ("edge_2", "node_q_1", "node_d_1", "flow"),
+        ("edge_3", "node_d_1", "node_a_1", "flow"),
+        ("edge_4", "node_a_1", "node_v_1", "flow"),
+        ("edge_5", "node_v_1", "node_e_1", "flow")
+    ]
+    for eid, esrc, etgt, etype in edges:
+        cur.execute(
+            "INSERT INTO lineage.lineage_edges (id, source, target, type, created_at) VALUES (%s, %s, %s, %s, %s);",
+            (eid, esrc, etgt, etype, datetime.utcnow())
+        )
+        
+    conn.commit()
+    conn.close()
+    print("LINEAGE service seeded successfully.")
+
     print("\n" + "="*60)
-    print(" GENQUANTAA DISCOVER SYSTEM SEEDING COMPLETED SUCCESSFULLY!")
+    print(" AnalytiX SYSTEM SEEDING COMPLETED SUCCESSFULLY!")
     print(" All microservices loaded with realistic compliance data.")
     print(" Ready for verification checks and presentation dashboards.")
     print("="*60 + "\n")

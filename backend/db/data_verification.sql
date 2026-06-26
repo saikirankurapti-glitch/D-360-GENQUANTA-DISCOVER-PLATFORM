@@ -1,5 +1,5 @@
 -- ================================================================
--- GENQUANTAA Discover – Phase 8.1 Data Verification SQL
+-- AnalytiX Discover – Phase 8.1 Data Verification SQL
 -- Run each section separately in Supabase SQL Editor.
 -- ================================================================
 

@@ -1,4 +1,4 @@
-"""Async SQLAlchemy configuration for GENQUANTAA Discover (Supabase)"""
+"""Async SQLAlchemy configuration for AnalytiX (Supabase)"""
 import os
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-GENQUANTAA Discover – K8s Manifest Generator
+AnalytiX – K8s Manifest Generator
 =============================================
 Generates production-ready Kubernetes YAML for all 10 microservices.
 Run: python generate_k8s_manifests.py
@@ -66,7 +66,7 @@ metadata:
   labels:
     app: {name}
     tier: {tier}
-    app.kubernetes.io/part-of: genquantaa-discover
+    app.kubernetes.io/part-of: genquantaa-helix
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "{port}"

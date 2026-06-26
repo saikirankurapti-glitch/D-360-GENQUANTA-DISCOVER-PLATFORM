@@ -64,8 +64,8 @@ export const LoginPage = () => {
           <div className="bg-sky-500/25 p-3 rounded-2xl border border-sky-500/40 mb-3 shadow-[0_0_20px_rgba(14,165,233,0.2)]">
             <Award className="h-8 w-8 text-sky-400" />
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-wider">GENQUANTAA DISCOVER</h1>
-          <p className="text-xs text-slate-400 mt-1 uppercase tracking-widest">Scientific Informatics Platform</p>
+          <h1 className="text-2xl font-bold text-white tracking-wider">AnalytiX</h1>
+          <p className="text-xs text-slate-400 mt-1 uppercase tracking-widest">AI-Powered Scientific Intelligence Platform</p>
         </div>
 
         {/* Success/Error Alerts */}

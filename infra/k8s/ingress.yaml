@@ -1,5 +1,5 @@
 # =============================================================================
-# GENQUANTAA Discover – Kubernetes Ingress
+# AnalytiX Discover – Kubernetes Ingress
 # NGINX Ingress Controller with TLS, rate limiting, and WAF annotations
 # =============================================================================
 apiVersion: networking.k8s.io/v1

@@ -1,5 +1,5 @@
 """
-GENQUANTAA Discover – Shared Observability Middleware
+AnalytiX – Shared Observability Middleware
 ======================================================
 Drop-in FastAPI middleware that adds:
   • OpenTelemetry distributed tracing (OTLP export)
@@ -158,7 +158,7 @@ def _setup_tracing(service_name: str, service_version: str = "1.0.0"):
         "service.name": service_name,
         "service.version": service_version,
         "deployment.environment": os.getenv("ENVIRONMENT", "development"),
-        "platform": "genquantaa-discover",
+        "platform": "genquantaa-helix",
     })
 
     provider = TracerProvider(resource=resource)

@@ -1,5 +1,5 @@
 # start_services.ps1
-# GENQUANTAA Discover - All services use local PostgreSQL (port 5432)
+# AnalytiX - All services use local PostgreSQL (port 5432)
 # Each service gets its own dedicated database.
 
 $baseDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -92,7 +92,7 @@ Start-Service-Window "Connector Service" 8005 "connector_service" @{
 # == 6. Audit Service (8006) ==================================================-
 Start-Service-Window "Audit Service" 8006 "audit_service" @{
     "DATABASE_URL"     = $DB_AUDIT
-    "AUDIT_API_SECRET" = "GENQUANTAA_AUDIT_INTERNAL_API_SECRET_2026"
+    "AUDIT_API_SECRET" = "AnalytiX_AUDIT_INTERNAL_API_SECRET_2026"
 }
 
 # == 7. Lineage Service (8007) ================================================-
@@ -113,7 +113,7 @@ Start-Service-Window "Workflow Service" 8009 "workflow_service" @{
 # == 10. AI Service (8010) ====================================================-
 Start-Service-Window "AI Service" 8010 "ai_service" @{
     "DATABASE_URL"     = $DB_AI
-    "AUDIT_API_SECRET" = "GENQUANTAA_AUDIT_INTERNAL_API_SECRET_2026"
+    "AUDIT_API_SECRET" = "AnalytiX_AUDIT_INTERNAL_API_SECRET_2026"
 }
 
 # == 11. Frontend Dev Server (5173) ============================================
@@ -125,7 +125,7 @@ Start-Process "cmd.exe" -ArgumentList "/c cd /d `"$frontDir`" && npm run dev > `
 # == Summary ==================================================================-
 Write-Host ""
 Write-Host "==========================================================" -ForegroundColor Magenta
-Write-Host " GENQUANTAA DISCOVER - All Services Launching" -ForegroundColor White
+Write-Host " AnalytiX - All Services Launching" -ForegroundColor White
 Write-Host "  Database: Local PostgreSQL @ localhost:5432" -ForegroundColor Magenta
 Write-Host "==========================================================" -ForegroundColor Magenta
 Write-Host ""
@@ -141,7 +141,12 @@ Write-Host "  Workflow API:        http://localhost:8009/docs" -ForegroundColor 
 Write-Host "  AI API:              http://localhost:8010/docs" -ForegroundColor Gray
 Write-Host "  Frontend App:        http://localhost:5173" -ForegroundColor Green
 Write-Host ""
-Write-Host "  Default Login: admin@genquantaa.com / GenQuantaaDiscover2026!" -ForegroundColor Yellow
+Write-Host "  Default Login: admin@analytix.com / AnalytiXDiscover2026!" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "Each service runs in its own console window." -ForegroundColor DarkGray
 Write-Host "Wait 10s for all services to fully start." -ForegroundColor DarkGray
+
+Write-Host "Services are running. Keeping parent script alive..." -ForegroundColor Cyan
+while ($true) {
+    Start-Sleep -Seconds 10
+}

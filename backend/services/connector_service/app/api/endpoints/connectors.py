@@ -45,7 +45,7 @@ import base64
 def get_user_from_request(request: Request) -> dict:
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
-        return {"id": "system", "email": "system-admin@genquantaa.com"}
+        return {"id": "system", "email": "system-admin@analytix.com"}
     try:
         token = auth_header.split(" ")[1]
         payload_b64 = token.split(".")[1]
@@ -54,10 +54,10 @@ def get_user_from_request(request: Request) -> dict:
         payload = json.loads(payload_json)
         return {
             "id": payload.get("sub", "system"),
-            "email": payload.get("email") or payload.get("sub") or "system-admin@genquantaa.com"
+            "email": payload.get("email") or payload.get("sub") or "system-admin@analytix.com"
         }
     except Exception:
-        return {"id": "system", "email": "system-admin@genquantaa.com"}
+        return {"id": "system", "email": "system-admin@analytix.com"}
 
 @router.post("/sources", response_model=DataSourceResponse, status_code=status.HTTP_201_CREATED)
 def create_data_source(request: Request, obj_in: DataSourceCreate, db: Session = Depends(get_db)):

@@ -16,7 +16,7 @@ class WorkflowExecutor:
         """Helper to send compliance audit log records to the Audit Service."""
         try:
             import os
-            secret = os.getenv("AUDIT_API_SECRET", "GENQUANTAA_AUDIT_INTERNAL_API_SECRET_2026")
+            secret = os.getenv("AUDIT_API_SECRET", "AnalytiX_AUDIT_INTERNAL_API_SECRET_2026")
             audit_payload = {
                 "action": action,
                 "username": username,
@@ -429,7 +429,7 @@ class WorkflowExecutor:
 
             elif node_type == "notification":
                 channel = inputs.get("channel", "email").lower()
-                recipient = inputs.get("recipient", "scientist@genquantaa.com")
+                recipient = inputs.get("recipient", "scientist@analytix.com")
                 subject = inputs.get("subject", "Workflow Event Notification")
                 message = inputs.get("message", "A workflow step executed successfully.")
 

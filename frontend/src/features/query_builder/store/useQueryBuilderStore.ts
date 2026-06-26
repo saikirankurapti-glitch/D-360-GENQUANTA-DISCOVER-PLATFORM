@@ -168,8 +168,22 @@ export const useQueryBuilderStore = create<QueryBuilderState>((set, get) => ({
         filters: []
       }
     };
+    const newNodes = [...get().nodes, newNode];
+    let newEdges = get().edges;
+    if (newNodes.length === 2 && newEdges.length === 0) {
+      const source = newNodes[0].id;
+      const target = newNodes[1].id;
+      newEdges = [{
+        id: `e-${source}-${target}`,
+        source,
+        target,
+        type: 'smoothstep',
+        data: { joinCondition: '' }
+      }];
+    }
     set({
-      nodes: [...get().nodes, newNode],
+      nodes: newNodes,
+      edges: newEdges,
       selectedNodeId: id,
       selectedEdgeId: null
     });

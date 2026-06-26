@@ -161,10 +161,10 @@ def run_pairwise_alignment(req: PairwiseAlignmentRequest, seq_a: str, seq_b: str
     aligner.extend_gap_score = req.extend_gap_score
 
     alignments = aligner.align(seq_a, seq_b)
-    if not alignments:
+    try:
+        best_alignment = alignments[0]
+    except (IndexError, OverflowError):
         return {"score": 0.0, "aligned_a": seq_a, "aligned_b": seq_b, "visualization": ""}
-        
-    best_alignment = alignments[0]
     
     # Generate visualization/string representation
     aligned_a, aligned_b = best_alignment[0], best_alignment[1]

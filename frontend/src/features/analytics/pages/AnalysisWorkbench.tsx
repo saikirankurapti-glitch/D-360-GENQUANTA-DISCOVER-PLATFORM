@@ -12,7 +12,9 @@ const createPlotlyComponent = typeof _createPlotlyComponent === 'function'
 const Plot = createPlotlyComponent(Plotly);
 import { 
   BarChart4, Database, Save, FolderOpen, RefreshCw, 
-  Settings, HelpCircle, Activity, Sparkles, Trash2, CheckCircle2
+  Settings, HelpCircle, Activity, Sparkles, Trash2, CheckCircle2,
+  Maximize2, Minimize2, Download, Filter, Sliders, ChevronDown, 
+  Trash, ArrowLeft, Info, Table, BarChart2
 } from 'lucide-react';
 
 // Demo Dataset for instant wow-factor testing
@@ -66,10 +68,19 @@ export const AnalysisWorkbench = () => {
   const [activeTab, setActiveTab] = useState<'grid' | 'visuals' | 'dimred' | 'clustering' | 'correlation' | 'doseresp'>('grid');
 
   // Exploratory Visuals configuration
-  const [plotType, setPlotType] = useState<'scatter' | 'histogram' | 'box'>('scatter');
+  const [plotType, setPlotType] = useState<string>('scatter');
   const [xCol, setXCol] = useState('');
   const [yCol, setYCol] = useState('');
   const [colorCol, setColorCol] = useState('');
+  const [groupByCol, setGroupByCol] = useState('');
+  const [aggregation, setAggregation] = useState<string>('None');
+  const [sortBy, setSortBy] = useState<string>('none');
+  const [sortOrder, setSortOrder] = useState<string>('asc');
+  const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [drillDownPath, setDrillDownPath] = useState<string[]>([]);
+  const [drillDownFilters, setDrillDownFilters] = useState<Record<string, any>>({});
+  const [plotlyRef, setPlotlyRef] = useState<any>(null);
 
   // PCA / Dimension Reduction state
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
@@ -213,6 +224,637 @@ export const AnalysisWorkbench = () => {
   };
 
   const numericCols = useMemo(() => getNumericColumns(columns, rows), [columns, rows]);
+
+  // Column profiles computed automatically on columns/rows load
+  const columnProfiles = useMemo(() => {
+    if (!columns || columns.length === 0 || !rows || rows.length === 0) return [];
+    
+    return columns.map((colName, colIdx) => {
+      const vals = rows.map(r => r[colIdx]).filter(v => v !== null && v !== undefined);
+      
+      // Determine if numeric
+      const isAllNumeric = vals.length > 0 && vals.every(v => {
+        if (typeof v === 'number') return true;
+        if (typeof v === 'string') {
+          const s = v.trim();
+          return s !== '' && !isNaN(Number(s));
+        }
+        return false;
+      });
+      
+      // Determine if date
+      const dateRegex = /^\d{4}-\d{2}-\d{2}/;
+      const isAllDate = vals.length > 0 && vals.every(v => {
+        if (typeof v === 'string') {
+          return dateRegex.test(v) || !isNaN(Date.parse(v));
+        }
+        return false;
+      });
+      
+      const distinctVals = Array.from(new Set(vals));
+      const cardinality = distinctVals.length;
+      
+      let type: 'numeric' | 'categorical' | 'date' | 'id_text' = 'id_text';
+      if (isAllNumeric) {
+        type = 'numeric';
+      } else if (isAllDate) {
+        type = 'date';
+      } else if (cardinality <= 25 || cardinality < vals.length * 0.4) {
+        type = 'categorical';
+      }
+      
+      let min, max, sum, mean;
+      if (type === 'numeric') {
+        const numVals = vals.map(v => Number(v));
+        min = Math.min(...numVals);
+        max = Math.max(...numVals);
+        sum = numVals.reduce((acc, curr) => acc + (isNaN(curr) ? 0 : curr), 0);
+        mean = sum / numVals.length;
+      }
+      
+      return {
+        name: colName,
+        type,
+        cardinality,
+        distinctValues: distinctVals,
+        min,
+        max,
+        sum,
+        mean
+      };
+    });
+  }, [columns, rows]);
+
+  // Recommendations derived dynamically from column profiles
+  const chartRecommendations = useMemo(() => {
+    const recommendations: Array<{
+      title: string;
+      chartType: string;
+      xCol: string;
+      yCol: string;
+      groupByCol?: string;
+      colorByCol?: string;
+      aggregation?: string;
+      reason: string;
+    }> = [];
+    
+    const numerics = columnProfiles.filter(p => p.type === 'numeric');
+    const categoricals = columnProfiles.filter(p => p.type === 'categorical');
+    const dates = columnProfiles.filter(p => p.type === 'date');
+    
+    // 1. Numeric vs Numeric -> Scatter Plot
+    if (numerics.length >= 2) {
+      recommendations.push({
+        title: `Scatter: ${numerics[0].name} vs ${numerics[1].name}`,
+        chartType: 'scatter',
+        xCol: numerics[0].name,
+        yCol: numerics[1].name,
+        colorByCol: categoricals.length > 0 ? categoricals[0].name : '',
+        reason: 'Plot continuous parameters to inspect outliers and correlation.'
+      });
+    }
+    
+    // 2. Category vs Numeric -> Bar Chart
+    if (categoricals.length > 0 && numerics.length > 0) {
+      recommendations.push({
+        title: `Avg ${numerics[0].name} by ${categoricals[0].name}`,
+        chartType: 'bar',
+        xCol: categoricals[0].name,
+        yCol: numerics[0].name,
+        aggregation: 'Avg',
+        reason: 'Compare key metric averages across discrete cohorts.'
+      });
+    }
+    
+    // 3. Date vs Numeric -> Line Chart
+    if (dates.length > 0 && numerics.length > 0) {
+      recommendations.push({
+        title: `TimeSeries of ${numerics[0].name}`,
+        chartType: 'timeseries',
+        xCol: dates[0].name,
+        yCol: numerics[0].name,
+        reason: 'Plot chronological values sequentially to reveal time-based trends.'
+      });
+    }
+    
+    // 4. Single Numeric -> Histogram / Box Plot
+    if (numerics.length > 0) {
+      recommendations.push({
+        title: `Distribution of ${numerics[0].name}`,
+        chartType: 'distribution',
+        xCol: numerics[0].name,
+        yCol: '',
+        reason: 'Evaluate density distribution curve & shape profile.'
+      });
+      
+      recommendations.push({
+        title: `BoxPlot of ${numerics[0].name}`,
+        chartType: 'box',
+        xCol: categoricals.length > 0 ? categoricals[0].name : '',
+        yCol: numerics[0].name,
+        reason: 'Display interquartile range (IQR), median and data spread.'
+      });
+    }
+    
+    // 5. Multiple Numerics -> Correlation Heatmap
+    if (numerics.length >= 3) {
+      recommendations.push({
+        title: 'Correlation Heatmap',
+        chartType: 'correlation_heatmap',
+        xCol: '',
+        yCol: '',
+        reason: 'Generate cross-correlation matrix across all continuous parameters.'
+      });
+    }
+    
+    // 6. Hierarchical -> Treemap
+    if (categoricals.length >= 2) {
+      recommendations.push({
+        title: `Treemap: ${categoricals[0].name} & ${categoricals[1].name}`,
+        chartType: 'treemap',
+        xCol: categoricals[0].name,
+        yCol: categoricals[1].name,
+        reason: 'Inspect nested category ratios and hierarchical tree sizes.'
+      });
+    }
+    
+    // 7. Pie chart composition
+    if (categoricals.length > 0) {
+      recommendations.push({
+        title: `${categoricals[0].name} Share Composition`,
+        chartType: 'pie',
+        xCol: categoricals[0].name,
+        yCol: '',
+        reason: 'Understand component ratios for low-cardinality divisions.'
+      });
+    }
+    
+    return recommendations;
+  }, [columnProfiles]);
+
+  // Dynamically filter rows based on active filters
+  const filteredRows = useMemo(() => {
+    return rows.filter(row => {
+      // 1. Apply user active filters
+      for (const colName of Object.keys(activeFilters)) {
+        const colIdx = columns.indexOf(colName);
+        if (colIdx === -1) continue;
+        const val = row[colIdx];
+        const filterVal = activeFilters[colName];
+        
+        const profile = columnProfiles.find(p => p.name === colName);
+        if (!profile) continue;
+        
+        if (profile.type === 'numeric') {
+          const num = Number(val);
+          if (filterVal.min !== undefined && num < filterVal.min) return false;
+          if (filterVal.max !== undefined && num > filterVal.max) return false;
+        } else {
+          // Categorical filter
+          if (filterVal && filterVal.length > 0 && !filterVal.includes(val)) {
+            return false;
+          }
+        }
+      }
+      
+      // 2. Apply drilldown filters
+      for (const colName of Object.keys(drillDownFilters)) {
+        const colIdx = columns.indexOf(colName);
+        if (colIdx === -1) continue;
+        const val = row[colIdx];
+        if (String(val) !== String(drillDownFilters[colName])) return false;
+      }
+      
+      return true;
+    });
+  }, [rows, columns, activeFilters, drillDownFilters, columnProfiles]);
+
+  const handleChartClick = (clickedVal: any) => {
+    const categoricals = columnProfiles.filter(p => p.type === 'categorical' && p.name !== xCol);
+    
+    if (['bar', 'horizontal_bar', 'stacked_bar', 'pie', 'donut', 'treemap'].includes(plotType) && categoricals.length > 0 && xCol) {
+      setDrillDownFilters(prev => ({ ...prev, [xCol]: clickedVal }));
+      setDrillDownPath(prev => [...prev, `${xCol}: ${clickedVal}`]);
+      setXCol(categoricals[0].name);
+    } else if (xCol) {
+      const currentFilter = activeFilters[xCol] || [];
+      const isSelected = currentFilter.includes(clickedVal);
+      const newFilter = isSelected 
+        ? currentFilter.filter((v: any) => v !== clickedVal)
+        : [...currentFilter, clickedVal];
+        
+      setActiveFilters(prev => ({
+        ...prev,
+        [xCol]: newFilter.length > 0 ? newFilter : undefined
+      }));
+    }
+  };
+
+  const handleDrillUp = () => {
+    if (drillDownPath.length === 0) return;
+    const lastPath = drillDownPath[drillDownPath.length - 1];
+    const originalCol = lastPath.split(':')[0];
+    
+    setDrillDownFilters(prev => {
+      const copy = { ...prev };
+      delete copy[originalCol];
+      return copy;
+    });
+    setDrillDownPath(prev => prev.slice(0, -1));
+    setXCol(originalCol);
+  };
+
+  const getAggregatedTraces = () => {
+    if (filteredRows.length === 0 || !xCol) return [];
+    const xIdx = columns.indexOf(xCol);
+    const yIdx = yCol ? columns.indexOf(yCol) : -1;
+    const groupIdx = groupByCol ? columns.indexOf(groupByCol) : -1;
+    
+    const groups: Record<string, Record<string, any[]>> = {};
+    
+    filteredRows.forEach(row => {
+      const xVal = String(row[xIdx] !== null && row[xIdx] !== undefined ? row[xIdx] : 'Null');
+      const groupVal = groupIdx !== -1 ? String(row[groupIdx] !== null && row[groupIdx] !== undefined ? row[groupIdx] : 'All') : 'All';
+      const yVal = yIdx !== -1 ? Number(row[yIdx]) : 1;
+      
+      if (!groups[groupVal]) groups[groupVal] = {};
+      if (!groups[groupVal][xVal]) groups[groupVal][xVal] = [];
+      groups[groupVal][xVal].push(yVal);
+    });
+    
+    const uniqueX = Array.from(new Set(filteredRows.map(row => String(row[xIdx] !== null && row[xIdx] !== undefined ? row[xIdx] : 'Null'))));
+    
+    return Object.keys(groups).map(groupName => {
+      const xValues: string[] = [];
+      const yValues: number[] = [];
+      
+      uniqueX.forEach(xVal => {
+        const vals = groups[groupName][xVal];
+        if (!vals || vals.length === 0) {
+          xValues.push(xVal);
+          yValues.push(0);
+          return;
+        }
+        
+        let aggVal = 0;
+        const count = vals.length;
+        const sum = vals.reduce((a, b) => a + (isNaN(b) ? 0 : b), 0);
+        const avg = sum / count;
+        const min = Math.min(...vals.filter(v => !isNaN(v)));
+        const max = Math.max(...vals.filter(v => !isNaN(v)));
+        
+        if (aggregation === 'Sum') aggVal = sum;
+        else if (aggregation === 'Avg') aggVal = avg;
+        else if (aggregation === 'Min') aggVal = isFinite(min) ? min : 0;
+        else if (aggregation === 'Max') aggVal = isFinite(max) ? max : 0;
+        else aggVal = count; // Count
+        
+        xValues.push(xVal);
+        yValues.push(aggVal);
+      });
+      
+      if (sortBy === 'x') {
+        const indices = Array.from(xValues.keys());
+        indices.sort((a, b) => {
+          const valA = xValues[a];
+          const valB = xValues[b];
+          const numA = Number(valA);
+          const numB = Number(valB);
+          if (!isNaN(numA) && !isNaN(numB)) {
+            return sortOrder === 'asc' ? numA - numB : numB - numA;
+          }
+          return sortOrder === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        });
+        return {
+          groupName,
+          x: indices.map(i => xValues[i]),
+          y: indices.map(i => yValues[i])
+        };
+      } else if (sortBy === 'y') {
+        const indices = Array.from(yValues.keys());
+        indices.sort((a, b) => sortOrder === 'asc' ? yValues[a] - yValues[b] : yValues[b] - yValues[a]);
+        return {
+          groupName,
+          x: indices.map(i => xValues[i]),
+          y: indices.map(i => yValues[i])
+        };
+      }
+      
+      return {
+        groupName,
+        x: xValues,
+        y: yValues
+      };
+    });
+  };
+
+  const plotlyData = useMemo(() => {
+    if (filteredRows.length === 0) return [];
+
+    const xIdx = columns.indexOf(xCol);
+    const yIdx = columns.indexOf(yCol);
+    const colorIdx = colorCol ? columns.indexOf(colorCol) : -1;
+
+    const rawX = filteredRows.map(r => r[xIdx]);
+    const rawY = yCol ? filteredRows.map(r => r[yIdx]) : [];
+
+    switch (plotType) {
+      case 'scatter': {
+        if (!xCol || !yCol) return [];
+        if (colorIdx !== -1) {
+          const uniqueColors = Array.from(new Set(filteredRows.map(r => r[colorIdx])));
+          return uniqueColors.map(colorVal => {
+            const subRows = filteredRows.filter(r => r[colorIdx] === colorVal);
+            return {
+              x: subRows.map(r => r[xIdx]),
+              y: subRows.map(r => r[yIdx]),
+              mode: 'markers',
+              type: 'scatter',
+              name: String(colorVal),
+              marker: { size: 9 }
+            };
+          });
+        }
+        return [{
+          x: rawX,
+          y: rawY,
+          mode: 'markers',
+          type: 'scatter',
+          name: 'Datapoints',
+          marker: { color: '#0ea5e9', size: 9 }
+        }];
+      }
+
+      case 'bubble': {
+        if (!xCol || !yCol) return [];
+        const sizeVals = rawY.map(v => Math.max(5, Math.min(50, Number(v) * 0.1 || 10)));
+        return [{
+          x: rawX,
+          y: rawY,
+          mode: 'markers',
+          type: 'scatter',
+          name: 'Bubbles',
+          marker: {
+            color: '#10b981',
+            size: sizeVals,
+            sizemode: 'area',
+            sizeref: 0.1
+          }
+        }];
+      }
+
+      case 'histogram': {
+        if (!xCol) return [];
+        return [{
+          x: rawX,
+          type: 'histogram',
+          marker: { color: '#0ea5e9', opacity: 0.7 }
+        }];
+      }
+
+      case 'box': {
+        if (!yCol) return [];
+        return [{
+          x: xCol ? rawX : undefined,
+          y: rawY,
+          type: 'box',
+          marker: { color: '#14b8a6' }
+        }];
+      }
+
+      case 'violin': {
+        if (!yCol) return [];
+        return [{
+          x: xCol ? rawX : undefined,
+          y: rawY,
+          type: 'violin',
+          box: { visible: true },
+          meanline: { visible: true },
+          line: { color: '#8b5cf6' }
+        }];
+      }
+
+      case 'correlation_heatmap': {
+        const numerics = columnProfiles.filter(p => p.type === 'numeric').map(p => p.name);
+        if (numerics.length < 2) return [];
+        
+        const matrix: number[][] = [];
+        numerics.forEach((rowCol) => {
+          const rowVals = filteredRows.map(r => Number(r[columns.indexOf(rowCol)]));
+          const rowCorr: number[] = [];
+          numerics.forEach((colCol) => {
+            const colVals = filteredRows.map(r => Number(r[columns.indexOf(colCol)]));
+            
+            const meanRow = rowVals.reduce((a, b) => a + b, 0) / rowVals.length;
+            const meanCol = colVals.reduce((a, b) => a + b, 0) / colVals.length;
+            
+            let num = 0;
+            let denRow = 0;
+            let denCol = 0;
+            for (let i = 0; i < rowVals.length; i++) {
+              const diffRow = rowVals[i] - meanRow;
+              const diffCol = colVals[i] - meanCol;
+              num += diffRow * diffCol;
+              denRow += diffRow * diffRow;
+              denCol += diffCol * diffCol;
+            }
+            const den = Math.sqrt(denRow) * Math.sqrt(denCol);
+            const corr = den !== 0 ? num / den : 0;
+            rowCorr.push(corr);
+          });
+          matrix.push(rowCorr);
+        });
+
+        return [{
+          z: matrix,
+          x: numerics,
+          y: numerics,
+          type: 'heatmap',
+          colorscale: 'RdBu',
+          zmin: -1,
+          zmax: 1
+        }];
+      }
+
+      case 'heatmap': {
+        if (!xCol || !yCol) return [];
+        return [{
+          x: rawX,
+          y: rawY,
+          type: 'histogram2d',
+          colorscale: 'Viridis'
+        }];
+      }
+
+      case 'treemap': {
+        if (!xCol) return [];
+        const traces = getAggregatedTraces();
+        if (traces.length === 0) return [];
+        const firstTrace = traces[0];
+        return [{
+          type: 'treemap',
+          labels: firstTrace.x,
+          parents: firstTrace.x.map(() => ''),
+          values: firstTrace.y
+        }];
+      }
+
+      case 'waterfall': {
+        if (!xCol || !yCol) return [];
+        const traces = getAggregatedTraces();
+        if (traces.length === 0) return [];
+        const t = traces[0];
+        return [{
+          type: 'waterfall',
+          x: t.x,
+          y: t.y,
+          connector: { line: { color: 'rgb(63, 63, 63)' } }
+        }];
+      }
+
+      case 'timeseries': {
+        if (!xCol || !yCol) return [];
+        const traces = getAggregatedTraces();
+        return traces.map(t => ({
+          x: t.x,
+          y: t.y,
+          type: 'scatter',
+          mode: 'lines+markers',
+          name: t.groupName,
+          line: { shape: 'spline' }
+        }));
+      }
+
+      case 'distribution': {
+        if (!xCol) return [];
+        return [
+          {
+            x: rawX,
+            type: 'histogram',
+            name: 'Histogram Density',
+            opacity: 0.6,
+            marker: { color: '#3b82f6' }
+          }
+        ];
+      }
+
+      case 'kpi_cards': {
+        if (!yCol) return [];
+        const traces = getAggregatedTraces();
+        if (traces.length === 0) return [];
+        const val = traces[0].y[0] || 0;
+        return [{
+          type: 'indicator',
+          mode: 'number',
+          value: val,
+          number: { font: { size: 40, color: '#38bdf8' } }
+        }];
+      }
+
+      default: {
+        if (!xCol) return [];
+        const traces = getAggregatedTraces();
+
+        if (plotType === 'pie' || plotType === 'donut') {
+          const combinedX: string[] = [];
+          const combinedY: number[] = [];
+          traces.forEach(t => {
+            t.x.forEach((xVal, idx) => {
+              combinedX.push(`${t.groupName !== 'All' ? t.groupName + ' - ' : ''}${xVal}`);
+              combinedY.push(t.y[idx]);
+            });
+          });
+          return [{
+            labels: combinedX,
+            values: combinedY,
+            type: 'pie',
+            hole: plotType === 'donut' ? 0.45 : 0
+          }];
+        }
+
+        if (plotType === 'horizontal_bar') {
+          return traces.map(t => ({
+            x: t.y,
+            y: t.x,
+            type: 'bar',
+            orientation: 'h',
+            name: t.groupName
+          }));
+        }
+
+        if (plotType === 'area') {
+          return traces.map(t => ({
+            x: t.x,
+            y: t.y,
+            type: 'scatter',
+            mode: 'lines',
+            fill: 'tozeroy',
+            name: t.groupName
+          }));
+        }
+
+        if (plotType === 'line') {
+          return traces.map(t => ({
+            x: t.x,
+            y: t.y,
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: t.groupName
+          }));
+        }
+
+        return traces.map(t => ({
+          x: t.x,
+          y: t.y,
+          type: 'bar',
+          name: t.groupName
+        }));
+      }
+    }
+  }, [plotType, xCol, yCol, colorCol, groupByCol, aggregation, sortBy, sortOrder, filteredRows, columns, columnProfiles]);
+
+  const summaryStats = useMemo(() => {
+    if (filteredRows.length === 0 || !yCol) return null;
+    const yIdx = columns.indexOf(yCol);
+    if (yIdx === -1) return null;
+    
+    const vals = filteredRows.map(r => Number(r[yIdx])).filter(v => !isNaN(v));
+    if (vals.length === 0) return null;
+    
+    const count = vals.length;
+    const sum = vals.reduce((a, b) => a + b, 0);
+    const avg = sum / count;
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    
+    const variance = vals.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / count;
+    const stdDev = Math.sqrt(variance);
+    
+    const sorted = [...vals].sort((a, b) => a - b);
+    const median = sorted[Math.floor(count / 2)];
+    
+    return {
+      count,
+      sum,
+      avg,
+      min,
+      max,
+      stdDev,
+      median
+    };
+  }, [filteredRows, yCol, columns]);
+
+  const exportPNG = () => {
+    if (plotlyRef) {
+      Plotly.downloadImage(plotlyRef, { format: 'png', width: 1200, height: 800, filename: `plot_${plotType}` });
+    }
+  };
+
+  const exportSVG = () => {
+    if (plotlyRef) {
+      Plotly.downloadImage(plotlyRef, { format: 'svg', width: 1200, height: 800, filename: `plot_${plotType}` });
+    }
+  };
 
   // PCA calculation
   const executePCA = async () => {
@@ -710,105 +1352,592 @@ export const AnalysisWorkbench = () => {
 
                 {/* 2. EXPLORATORY VISUALS TAB */}
                 {activeTab === 'visuals' && (
-                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-full min-h-0">
-                    <div className="lg:col-span-1 glass-panel border border-slate-800 rounded-2xl p-4 space-y-4">
-                      <div className="flex items-center space-x-1.5 border-b border-slate-850 pb-2">
-                        <Settings className="h-4 w-4 text-sky-400" />
-                        <span className="text-[11px] font-bold text-white uppercase tracking-wider">Plot Configurator</span>
+                  <div className="space-y-6 h-full overflow-y-auto pr-2 pb-8">
+                    {/* KPI Cards Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="glass-panel border border-slate-800 rounded-xl p-4 flex items-center justify-between bg-[#070b13]/40">
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Filtered Records</p>
+                          <h3 className="text-xl font-bold text-white mt-1">
+                            {filteredRows.length} <span className="text-xs text-slate-400 font-normal">/ {rows.length}</span>
+                          </h3>
+                          <p className="text-[10px] text-sky-400 mt-0.5">
+                            {rows.length > 0 ? ((filteredRows.length / rows.length) * 100).toFixed(0) : 0}% of total dataset
+                          </p>
+                        </div>
+                        <Database className="h-8 w-8 text-sky-500/40" />
                       </div>
-                      
-                      <div className="space-y-3">
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-bold uppercase text-slate-500 tracking-wider">Plot Type</label>
-                          <select
-                            value={plotType}
-                            onChange={(e) => setPlotType(e.target.value as any)}
-                            className="w-full bg-[#070b13] border border-slate-800 text-xs text-slate-300 px-3 py-1.5 rounded-lg focus:outline-none"
-                          >
-                            <option value="scatter">Scatter Plot</option>
-                            <option value="histogram">Histogram</option>
-                            <option value="box">Box Plot</option>
-                          </select>
+
+                      <div className="glass-panel border border-slate-800 rounded-xl p-4 flex items-center justify-between bg-[#070b13]/40">
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Dataset Schema</p>
+                          <h3 className="text-xl font-bold text-white mt-1">
+                            {columns.length} <span className="text-xs text-slate-400 font-normal">Columns</span>
+                          </h3>
+                          <p className="text-[10px] text-emerald-400 mt-0.5">
+                            {columnProfiles.filter(p => p.type === 'numeric').length} Numeric | {columnProfiles.filter(p => p.type === 'categorical').length} Categorical
+                          </p>
                         </div>
+                        <Sliders className="h-8 w-8 text-emerald-500/40" />
+                      </div>
 
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-bold uppercase text-slate-500 tracking-wider">X Axis Variable</label>
-                          <select
-                            value={xCol}
-                            onChange={(e) => setXCol(e.target.value)}
-                            className="w-full bg-[#070b13] border border-slate-800 text-xs text-slate-300 px-3 py-1.5 rounded-lg focus:outline-none"
-                          >
-                            <option value="">-- Select --</option>
-                            {columns.map(c => <option key={c} value={c}>{c}</option>)}
-                          </select>
+                      <div className="glass-panel border border-slate-800 rounded-xl p-4 flex items-center justify-between bg-[#070b13]/40">
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                            {yCol ? `Average ${yCol}` : 'Average Metric'}
+                          </p>
+                          <h3 className="text-xl font-bold text-sky-400 mt-1">
+                            {summaryStats ? summaryStats.avg.toFixed(2) : 'N/A'}
+                          </h3>
+                          <p className="text-[10px] text-slate-500 mt-0.5">
+                            {summaryStats ? `Sum: ${summaryStats.sum.toLocaleString(undefined, {maximumFractionDigits: 1})}` : 'No numeric variable selected'}
+                          </p>
                         </div>
+                        <Activity className="h-8 w-8 text-sky-500/40" />
+                      </div>
 
-                        {plotType !== 'histogram' && (
-                          <div className="space-y-1">
-                            <label className="text-[9px] font-bold uppercase text-slate-500 tracking-wider">Y Axis Variable</label>
-                            <select
-                              value={yCol}
-                              onChange={(e) => setYCol(e.target.value)}
-                              className="w-full bg-[#070b13] border border-slate-800 text-xs text-slate-300 px-3 py-1.5 rounded-lg focus:outline-none"
-                            >
-                              <option value="">-- Select --</option>
-                              {columns.map(c => <option key={c} value={c}>{c}</option>)}
-                            </select>
-                          </div>
-                        )}
-
-                        {plotType === 'scatter' && (
-                          <div className="space-y-1">
-                            <label className="text-[9px] font-bold uppercase text-slate-500 tracking-wider">Color Grouping By</label>
-                            <select
-                              value={colorCol}
-                              onChange={(e) => setColorCol(e.target.value)}
-                              className="w-full bg-[#070b13] border border-slate-800 text-xs text-slate-300 px-3 py-1.5 rounded-lg focus:outline-none"
-                            >
-                              <option value="">-- None --</option>
-                              {clusterLabels.length > 0 && <option value="_cluster_labels_">Clustering Labels</option>}
-                              {columns.map(c => <option key={c} value={c}>{c}</option>)}
-                            </select>
-                          </div>
-                        )}
+                      <div className="glass-panel border border-slate-800 rounded-xl p-4 flex items-center justify-between bg-[#070b13]/40">
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                            {yCol ? `Max ${yCol}` : 'Max Metric'}
+                          </p>
+                          <h3 className="text-xl font-bold text-purple-400 mt-1">
+                            {summaryStats ? summaryStats.max.toFixed(2) : 'N/A'}
+                          </h3>
+                          <p className="text-[10px] text-slate-500 mt-0.5">
+                            {summaryStats ? `StdDev: ±${summaryStats.stdDev.toFixed(2)}` : 'No numeric variable selected'}
+                          </p>
+                        </div>
+                        <Sparkles className="h-8 w-8 text-purple-500/40" />
                       </div>
                     </div>
 
-                    <div className="lg:col-span-3 flex justify-center items-center bg-[#070b13]/30 border border-slate-850 rounded-2xl p-4 min-h-[350px]">
-                      {(!xCol || (plotType !== 'histogram' && !yCol)) ? (
-                        <p className="text-xs text-slate-600 font-semibold">Select variables in the configurator to render graph.</p>
-                      ) : (
-                        <Plot
-                          data={
-                            plotType === 'scatter' 
-                              ? scatterPlotData
-                              : plotType === 'histogram'
-                              ? [{
-                                  x: rows.map(r => r[columns.indexOf(xCol)]),
-                                  type: 'histogram',
-                                  marker: { color: '#0ea5e9' }
-                                }]
-                              : [{
-                                  y: rows.map(r => r[columns.indexOf(yCol)]),
-                                  x: rows.map(r => String(r[columns.indexOf(xCol)])),
-                                  type: 'box',
-                                  marker: { color: '#14b8a6' }
-                                }]
-                          }
-                          layout={{
-                            paper_bgcolor: 'rgba(0,0,0,0)',
-                            plot_bgcolor: 'rgba(0,0,0,0)',
-                            title: { text: `${plotType.toUpperCase()}: ${xCol} vs ${yCol || ''}`, font: { color: '#fff', size: 12 } },
-                            font: { color: '#94a3b8', size: 10 },
-                            xaxis: { title: xCol, gridcolor: '#1e293b', zerolinecolor: '#334155' },
-                            yaxis: { title: yCol || 'Count', gridcolor: '#1e293b', zerolinecolor: '#334155' },
-                            autosize: true,
-                            margin: { l: 50, r: 20, t: 40, b: 50 }
-                          }}
-                          config={{ responsive: true }}
-                          style={{ width: '100%', height: '100%', minHeight: '340px' }}
-                        />
-                      )}
+                    {/* Main Workbench Grid */}
+                    <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 min-h-[600px]">
+                      {/* Sidebar Controls */}
+                      <div className="xl:col-span-1 flex flex-col space-y-4">
+                        {/* 1. Configurator */}
+                        <div className="glass-panel border border-slate-800 rounded-2xl p-4 space-y-4">
+                          <div className="flex items-center justify-between border-b border-slate-850 pb-2">
+                            <div className="flex items-center space-x-1.5">
+                              <Settings className="h-4 w-4 text-sky-400" />
+                              <span className="text-[11px] font-bold text-white uppercase tracking-wider">Plot Configurator</span>
+                            </div>
+                            <span className="text-[10px] font-semibold text-slate-500 uppercase">Interactive</span>
+                          </div>
+
+                          <div className="space-y-3">
+                            <div className="space-y-1">
+                              <label className="text-[9px] font-bold uppercase text-slate-500 tracking-wider">Plot Type</label>
+                              <select
+                                value={plotType}
+                                onChange={(e) => {
+                                  setPlotType(e.target.value);
+                                  if (['histogram', 'correlation_heatmap'].includes(e.target.value)) {
+                                    setYCol('');
+                                  }
+                                }}
+                                className="w-full bg-[#070b13] border border-slate-800 text-xs text-slate-300 px-3 py-1.5 rounded-lg focus:outline-none focus:border-sky-500 transition"
+                              >
+                                <option value="bar">Bar Chart</option>
+                                <option value="horizontal_bar">Horizontal Bar Chart</option>
+                                <option value="stacked_bar">Stacked Bar Chart</option>
+                                <option value="line">Line Chart</option>
+                                <option value="area">Area Chart</option>
+                                <option value="pie">Pie Chart</option>
+                                <option value="donut">Donut Chart</option>
+                                <option value="scatter">Scatter Plot</option>
+                                <option value="bubble">Bubble Chart</option>
+                                <option value="histogram">Histogram</option>
+                                <option value="box">Box Plot</option>
+                                <option value="violin">Violin Plot</option>
+                                <option value="heatmap">Heatmap (2D Density)</option>
+                                <option value="correlation_heatmap">Correlation Heatmap</option>
+                                <option value="treemap">Treemap</option>
+                                <option value="waterfall">Waterfall Chart</option>
+                                <option value="kpi_cards">KPI Card Visual</option>
+                                <option value="timeseries">Time Series Chart</option>
+                                <option value="distribution">Distribution Plot (Hist + Line)</option>
+                              </select>
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-[9px] font-bold uppercase text-slate-500 tracking-wider">X Axis (Categories / Trends)</label>
+                              <select
+                                value={xCol}
+                                onChange={(e) => setXCol(e.target.value)}
+                                className="w-full bg-[#070b13] border border-slate-800 text-xs text-slate-300 px-3 py-1.5 rounded-lg focus:outline-none focus:border-sky-500 transition"
+                              >
+                                <option value="">-- Select --</option>
+                                {columns.map(c => <option key={c} value={c}>{c}</option>)}
+                              </select>
+                            </div>
+
+                            {!['histogram', 'correlation_heatmap', 'distribution'].includes(plotType) && (
+                              <div className="space-y-1">
+                                <label className="text-[9px] font-bold uppercase text-slate-500 tracking-wider">Y Axis (Values)</label>
+                                <select
+                                  value={yCol}
+                                  onChange={(e) => setYCol(e.target.value)}
+                                  className="w-full bg-[#070b13] border border-slate-800 text-xs text-slate-300 px-3 py-1.5 rounded-lg focus:outline-none focus:border-sky-500 transition"
+                                >
+                                  <option value="">-- Select --</option>
+                                  {columns.map(c => <option key={c} value={c}>{c}</option>)}
+                                </select>
+                              </div>
+                            )}
+
+                            {/* Aggregations */}
+                            {!['scatter', 'bubble', 'histogram', 'box', 'violin', 'heatmap', 'correlation_heatmap', 'distribution'].includes(plotType) && (
+                              <div className="space-y-1">
+                                <label className="text-[9px] font-bold uppercase text-slate-500 tracking-wider">Aggregation (Y values)</label>
+                                <select
+                                  value={aggregation}
+                                  onChange={(e) => setAggregation(e.target.value)}
+                                  className="w-full bg-[#070b13] border border-slate-800 text-xs text-slate-300 px-3 py-1.5 rounded-lg focus:outline-none focus:border-sky-500 transition"
+                                >
+                                  <option value="None">None (Sum by default)</option>
+                                  <option value="Sum">Sum</option>
+                                  <option value="Avg">Average</option>
+                                  <option value="Min">Minimum</option>
+                                  <option value="Max">Maximum</option>
+                                  <option value="Count">Count</option>
+                                </select>
+                              </div>
+                            )}
+
+                            {/* Grouping */}
+                            {['bar', 'stacked_bar', 'line', 'area', 'scatter', 'timeseries'].includes(plotType) && (
+                              <div className="space-y-1">
+                                <label className="text-[9px] font-bold uppercase text-slate-500 tracking-wider">Split / Color By</label>
+                                <select
+                                  value={plotType === 'scatter' ? colorCol : groupByCol}
+                                  onChange={(e) => {
+                                    if (plotType === 'scatter') {
+                                      setColorCol(e.target.value);
+                                    } else {
+                                      setGroupByCol(e.target.value);
+                                    }
+                                  }}
+                                  className="w-full bg-[#070b13] border border-slate-800 text-xs text-slate-300 px-3 py-1.5 rounded-lg focus:outline-none focus:border-sky-500 transition"
+                                >
+                                  <option value="">-- None --</option>
+                                  {columns.map(c => <option key={c} value={c}>{c}</option>)}
+                                </select>
+                              </div>
+                            )}
+
+                            {/* Sorting */}
+                            {!['scatter', 'bubble', 'histogram', 'box', 'violin', 'heatmap', 'correlation_heatmap', 'distribution'].includes(plotType) && (
+                              <div className="grid grid-cols-2 gap-2 pt-1">
+                                <div className="space-y-1">
+                                  <label className="text-[9px] font-bold uppercase text-slate-500 tracking-wider">Sort By</label>
+                                  <select
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                    className="w-full bg-[#070b13] border border-slate-800 text-[10px] text-slate-300 px-2 py-1 rounded focus:outline-none focus:border-sky-500 transition"
+                                  >
+                                    <option value="none">Default</option>
+                                    <option value="x">X Axis</option>
+                                    <option value="y">Y Axis</option>
+                                  </select>
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[9px] font-bold uppercase text-slate-500 tracking-wider">Order</label>
+                                  <select
+                                    value={sortOrder}
+                                    onChange={(e) => setSortOrder(e.target.value)}
+                                    className="w-full bg-[#070b13] border border-slate-800 text-[10px] text-slate-300 px-2 py-1 rounded focus:outline-none focus:border-sky-500 transition"
+                                  >
+                                    <option value="asc">Ascending</option>
+                                    <option value="desc">Descending</option>
+                                  </select>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* 2. Interactive Global Filters */}
+                        <div className="glass-panel border border-slate-800 rounded-2xl p-4 space-y-3">
+                          <div className="flex items-center justify-between border-b border-slate-850 pb-2">
+                            <div className="flex items-center space-x-1.5">
+                              <Filter className="h-4 w-4 text-emerald-400" />
+                              <span className="text-[11px] font-bold text-white uppercase tracking-wider">Interactive Filters</span>
+                            </div>
+                            {Object.keys(activeFilters).length > 0 && (
+                              <button
+                                onClick={() => setActiveFilters({})}
+                                className="text-[9px] text-red-400 hover:text-red-300 font-semibold uppercase"
+                              >
+                                Clear All
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1">
+                            {columnProfiles.filter(p => ['numeric', 'categorical'].includes(p.type)).map(profile => {
+                              const isNumeric = profile.type === 'numeric';
+                              return (
+                                <div key={profile.name} className="space-y-1 border-b border-slate-850/50 pb-2 last:border-b-0 last:pb-0">
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-[10px] font-semibold text-slate-300">{profile.name}</span>
+                                    <span className="text-[9px] text-slate-500 capitalize">{profile.type}</span>
+                                  </div>
+                                  
+                                  {isNumeric ? (
+                                    <div className="space-y-1 pt-1">
+                                      <div className="flex justify-between text-[9px] text-slate-400">
+                                        <span>Min: {profile.min !== undefined ? profile.min.toFixed(1) : ''}</span>
+                                        <span>Max: {profile.max !== undefined ? profile.max.toFixed(1) : ''}</span>
+                                      </div>
+                                      <div className="flex space-x-2">
+                                        <input
+                                          type="number"
+                                          placeholder="Min"
+                                          value={activeFilters[profile.name]?.min ?? ''}
+                                          onChange={(e) => {
+                                            const minVal = e.target.value !== '' ? Number(e.target.value) : undefined;
+                                            setActiveFilters(prev => ({
+                                              ...prev,
+                                              [profile.name]: { ...prev[profile.name], min: minVal }
+                                            }));
+                                          }}
+                                          className="w-1/2 bg-[#070b13] border border-slate-800 text-[10px] text-slate-300 px-2 py-1 rounded"
+                                        />
+                                        <input
+                                          type="number"
+                                          placeholder="Max"
+                                          value={activeFilters[profile.name]?.max ?? ''}
+                                          onChange={(e) => {
+                                            const maxVal = e.target.value !== '' ? Number(e.target.value) : undefined;
+                                            setActiveFilters(prev => ({
+                                              ...prev,
+                                              [profile.name]: { ...prev[profile.name], max: maxVal }
+                                            }));
+                                          }}
+                                          className="w-1/2 bg-[#070b13] border border-slate-800 text-[10px] text-slate-300 px-2 py-1 rounded"
+                                        />
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="flex flex-wrap gap-1 pt-1">
+                                      {profile.distinctValues.slice(0, 8).map(valStr => {
+                                        const val = String(valStr);
+                                        const isChecked = activeFilters[profile.name]?.includes(val) ?? false;
+                                        return (
+                                          <button
+                                            key={val}
+                                            onClick={() => {
+                                              const currentList = activeFilters[profile.name] || [];
+                                              const newList = isChecked
+                                                ? currentList.filter((v: string) => v !== val)
+                                                : [...currentList, val];
+                                              setActiveFilters(prev => ({
+                                                ...prev,
+                                                [profile.name]: newList.length > 0 ? newList : undefined
+                                              }));
+                                            }}
+                                            className={`text-[9px] px-2 py-0.5 rounded border transition font-medium ${
+                                              isChecked
+                                                ? 'bg-emerald-500/25 border-emerald-500/50 text-emerald-300'
+                                                : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
+                                            }`}
+                                          >
+                                            {val}
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* 3. AI/Intelligent Recommendations */}
+                        <div className="glass-panel border border-slate-800 rounded-2xl p-4 space-y-3">
+                          <div className="flex items-center space-x-1.5 border-b border-slate-850 pb-2">
+                            <Sparkles className="h-4 w-4 text-purple-400" />
+                            <span className="text-[11px] font-bold text-white uppercase tracking-wider">Smart Suggestions</span>
+                          </div>
+
+                          <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                            {chartRecommendations.length === 0 ? (
+                              <p className="text-[10px] text-slate-500 italic">No recommendations available for the current dataset structure.</p>
+                            ) : (
+                              chartRecommendations.map((rec, idx) => (
+                                <button
+                                  key={idx}
+                                  onClick={() => {
+                                    setPlotType(rec.chartType);
+                                    setXCol(rec.xCol);
+                                    setYCol(rec.yCol);
+                                    if (rec.colorByCol) setColorCol(rec.colorByCol);
+                                    if (rec.groupByCol) setGroupByCol(rec.groupByCol ?? '');
+                                    if (rec.aggregation) setAggregation(rec.aggregation);
+                                  }}
+                                  className="w-full text-left bg-slate-950/40 hover:bg-slate-900/60 border border-slate-850 hover:border-purple-500/30 rounded-xl p-2.5 transition space-y-1 block"
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-[10px] font-bold text-purple-300">{rec.title}</span>
+                                    <span className="text-[8px] bg-purple-500/25 text-purple-300 px-1.5 py-0.5 rounded font-mono uppercase">
+                                      {rec.chartType}
+                                    </span>
+                                  </div>
+                                  <p className="text-[9px] text-slate-400 leading-normal">{rec.reason}</p>
+                                </button>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Main Chart Canvas Area */}
+                      <div className="xl:col-span-3 flex flex-col space-y-6">
+                        {/* Chart Area Card */}
+                        <div className={`glass-panel border border-slate-800 rounded-3xl p-6 relative flex flex-col ${
+                          isFullscreen ? 'fixed inset-0 z-50 bg-[#02060f]/95 overflow-y-auto p-8' : 'min-h-[500px]'
+                        }`}>
+                          {/* Canvas Header */}
+                          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-850 pb-4 mb-4">
+                            <div className="space-y-1">
+                              <div className="flex items-center space-x-2">
+                                <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+                                  {plotType.replace('_', ' ').toUpperCase()} VIEW
+                                </h2>
+                                {drillDownPath.length > 0 && (
+                                  <span className="text-[9px] bg-amber-500/25 text-amber-300 px-2 py-0.5 rounded font-mono">
+                                    Drill Down Active
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[10px] text-slate-500">
+                                {xCol ? `${xCol}` : 'No variable selected'} 
+                                {yCol ? ` vs ${yCol}` : ''}
+                                {aggregation !== 'None' ? ` (Aggregated: ${aggregation})` : ''}
+                              </p>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex items-center space-x-2">
+                              {drillDownPath.length > 0 && (
+                                <button
+                                  onClick={handleDrillUp}
+                                  className="flex items-center space-x-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 px-2.5 py-1.5 rounded-lg border border-amber-500/25 text-[10px] font-semibold transition"
+                                >
+                                  <ArrowLeft className="h-3 w-3" />
+                                  <span>Drill Up</span>
+                                </button>
+                              )}
+
+                              <button
+                                onClick={exportPNG}
+                                disabled={!plotlyRef}
+                                className="flex items-center space-x-1 bg-slate-900 hover:bg-slate-850 text-slate-300 disabled:opacity-50 px-2.5 py-1.5 rounded-lg border border-slate-800 text-[10px] font-semibold transition"
+                                title="Export as PNG Image"
+                              >
+                                <Download className="h-3 w-3 text-sky-400" />
+                                <span>PNG</span>
+                              </button>
+
+                              <button
+                                onClick={exportSVG}
+                                disabled={!plotlyRef}
+                                className="flex items-center space-x-1 bg-slate-900 hover:bg-slate-850 text-slate-300 disabled:opacity-50 px-2.5 py-1.5 rounded-lg border border-slate-800 text-[10px] font-semibold transition"
+                                title="Export as Vector SVG"
+                              >
+                                <Download className="h-3 w-3 text-purple-400" />
+                                <span>SVG</span>
+                              </button>
+
+                              <button
+                                onClick={() => setIsFullscreen(!isFullscreen)}
+                                className="flex items-center space-x-1 bg-slate-900 hover:bg-slate-850 text-slate-300 px-2.5 py-1.5 rounded-lg border border-slate-800 text-[10px] font-semibold transition"
+                              >
+                                {isFullscreen ? (
+                                  <>
+                                    <Minimize2 className="h-3 w-3 text-emerald-400" />
+                                    <span>Exit Fullscreen</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Maximize2 className="h-3 w-3 text-emerald-400" />
+                                    <span>Fullscreen</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Drilldown Filter Breadcrumbs */}
+                          {drillDownPath.length > 0 && (
+                            <div className="flex items-center space-x-1.5 bg-amber-500/5 border border-amber-500/10 rounded-lg p-2 mb-4 text-[10px] text-amber-300/90">
+                              <Info className="h-3.5 w-3.5 text-amber-400 flex-shrink-0" />
+                              <div className="flex items-center flex-wrap gap-1 font-mono">
+                                <span className="font-sans font-semibold text-slate-400 mr-1">Drill path:</span>
+                                {drillDownPath.map((path, idx) => (
+                                  <span key={idx} className="flex items-center">
+                                    <span className="bg-amber-500/15 px-2 py-0.5 rounded border border-amber-500/20">{path}</span>
+                                    {idx < drillDownPath.length - 1 && <span className="mx-1 text-slate-600">&gt;</span>}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* The Plotly Component */}
+                          <div className="flex-1 flex justify-center items-center bg-[#070b13]/30 border border-slate-850/50 rounded-2xl p-4 min-h-[350px]">
+                            {(!xCol || (!['histogram', 'correlation_heatmap', 'distribution'].includes(plotType) && !yCol)) ? (
+                              <div className="text-center space-y-2 max-w-sm">
+                                <BarChart4 className="h-10 w-10 text-slate-700 mx-auto" />
+                                <h4 className="text-xs font-bold text-slate-400">Plot Unconfigured</h4>
+                                <p className="text-[10px] text-slate-600 leading-relaxed">
+                                  Select an X-Axis variable and Y-Axis values inside the configurator panel, or click one of our Smart Suggestions to configure instantly.
+                                </p>
+                              </div>
+                            ) : (
+                              <Plot
+                                data={plotlyData}
+                                layout={{
+                                  paper_bgcolor: 'rgba(0,0,0,0)',
+                                  plot_bgcolor: 'rgba(0,0,0,0)',
+                                  font: { color: '#94a3b8', size: 10 },
+                                  xaxis: { 
+                                    title: xCol, 
+                                    gridcolor: '#1e293b', 
+                                    zerolinecolor: '#334155',
+                                    tickfont: { color: '#64748b' }
+                                  },
+                                  yaxis: { 
+                                    title: yCol || 'Value / Count', 
+                                    gridcolor: '#1e293b', 
+                                    zerolinecolor: '#334155',
+                                    tickfont: { color: '#64748b' }
+                                  },
+                                  autosize: true,
+                                  margin: { l: 60, r: 30, t: 30, b: 60 },
+                                  barmode: plotType === 'stacked_bar' ? 'stack' : 'group',
+                                  showlegend: true,
+                                  legend: { font: { color: '#94a3b8' } }
+                                }}
+                                config={{ responsive: true, displayModeBar: false }}
+                                onInitialized={(figure, graphDiv) => setPlotlyRef(graphDiv)}
+                                onUpdate={(figure, graphDiv) => setPlotlyRef(graphDiv)}
+                                onClick={(data) => {
+                                  if (!data || !data.points || data.points.length === 0) return;
+                                  const pt = data.points[0];
+                                  const clickVal = pt.x ?? pt.label;
+                                  if (clickVal !== undefined) handleChartClick(clickVal);
+                                }}
+                                style={{ width: '100%', height: '100%', minHeight: '380px' }}
+                              />
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Multi-Chart Companion / Cross-Filter Section (Tableau / Power BI experience) */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          {/* Companion Chart 1: Categorical breakdown cross-filter */}
+                          <div className="glass-panel border border-slate-800 rounded-2xl p-4 space-y-3 md:col-span-2">
+                            <div className="flex items-center justify-between border-b border-slate-850 pb-2">
+                              <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">
+                                Companion 1: Categorical Distribution
+                              </span>
+                              <span className="text-[8px] bg-sky-500/25 text-sky-400 px-1.5 py-0.5 rounded font-mono">
+                                Click to Cross-Filter
+                              </span>
+                            </div>
+                            
+                            <div className="h-[200px] flex justify-center items-center">
+                              {columnProfiles.filter(p => p.type === 'categorical').length === 0 ? (
+                                <p className="text-[10px] text-slate-600">No categorical columns available for companion chart.</p>
+                              ) : (
+                                <Plot
+                                  data={[{
+                                    labels: Array.from(new Set(filteredRows.map(r => String(r[columns.indexOf(columnProfiles.filter(p => p.type === 'categorical')[0].name)])))),
+                                    values: Array.from(new Set(filteredRows.map(r => String(r[columns.indexOf(columnProfiles.filter(p => p.type === 'categorical')[0].name)])))).map(cVal => 
+                                      filteredRows.filter(r => String(r[columns.indexOf(columnProfiles.filter(p => p.type === 'categorical')[0].name)]) === cVal).length
+                                    ),
+                                    type: 'pie',
+                                    hole: 0.4
+                                  }]}
+                                  layout={{
+                                    paper_bgcolor: 'rgba(0,0,0,0)',
+                                    plot_bgcolor: 'rgba(0,0,0,0)',
+                                    font: { color: '#94a3b8', size: 8 },
+                                    showlegend: true,
+                                    legend: { font: { size: 8, color: '#94a3b8' } },
+                                    margin: { l: 20, r: 20, t: 10, b: 20 }
+                                  }}
+                                  config={{ responsive: true, displayModeBar: false }}
+                                  onClick={(data) => {
+                                    if (!data || !data.points || data.points.length === 0) return;
+                                    const cCol = columnProfiles.filter(p => p.type === 'categorical')[0].name;
+                                    const clickVal = data.points[0].label;
+                                    
+                                    const currentFilter = activeFilters[cCol] || [];
+                                    const isSelected = currentFilter.includes(clickVal);
+                                    const newFilter = isSelected 
+                                      ? currentFilter.filter((v: any) => v !== clickVal)
+                                      : [...currentFilter, clickVal];
+                                      
+                                    setActiveFilters(prev => ({
+                                      ...prev,
+                                      [cCol]: newFilter.length > 0 ? newFilter : undefined
+                                    }));
+                                  }}
+                                  style={{ width: '100%', height: '100%' }}
+                                />
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Summary Statistics Table card */}
+                          <div className="glass-panel border border-slate-800 rounded-2xl p-4 space-y-3 md:col-span-1">
+                            <div className="flex items-center space-x-1.5 border-b border-slate-850 pb-2">
+                              <Table className="h-4 w-4 text-sky-400" />
+                              <span className="text-[10px] font-bold text-white uppercase tracking-wider">Summary Stats</span>
+                            </div>
+
+                            {!summaryStats ? (
+                              <div className="h-[180px] flex items-center justify-center text-center p-4">
+                                <p className="text-[10px] text-slate-600 leading-normal">
+                                  Select a numeric Y-Axis variable to compute scientific statistics.
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="space-y-1.5 text-[10px]">
+                                <div className="flex justify-between border-b border-slate-850 py-1">
+                                  <span className="text-slate-500">Record Count</span>
+                                  <span className="text-slate-300 font-mono font-semibold">{summaryStats.count}</span>
+                                </div>
+                                <div className="flex justify-between border-b border-slate-850 py-1">
+                                  <span className="text-slate-500">Average</span>
+                                  <span className="text-slate-300 font-mono font-semibold">{summaryStats.avg.toFixed(2)}</span>
+                                </div>
+                                <div className="flex justify-between border-b border-slate-850 py-1">
+                                  <span className="text-slate-500">Median</span>
+                                  <span className="text-slate-300 font-mono font-semibold">{summaryStats.median.toFixed(2)}</span>
+                                </div>
+                                <div className="flex justify-between border-b border-slate-850 py-1">
+                                  <span className="text-slate-500">Std Deviation</span>
+                                  <span className="text-slate-300 font-mono font-semibold">±{summaryStats.stdDev.toFixed(2)}</span>
+                                </div>
+                                <div className="flex justify-between border-b border-slate-850 py-1">
+                                  <span className="text-slate-500">Minimum</span>
+                                  <span className="text-slate-300 font-mono font-semibold">{summaryStats.min.toFixed(2)}</span>
+                                </div>
+                                <div className="flex justify-between py-1">
+                                  <span className="text-slate-500">Maximum</span>
+                                  <span className="text-slate-300 font-mono font-semibold">{summaryStats.max.toFixed(2)}</span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}

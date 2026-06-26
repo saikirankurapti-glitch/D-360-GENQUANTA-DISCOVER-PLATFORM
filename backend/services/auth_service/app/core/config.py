@@ -2,7 +2,7 @@ import os
 
 class Settings:
     API_V1_STR: str = "/api/v1"
-    PROJECT_NAME: str = "Discover Auth Service"
+    PROJECT_NAME: str = "AnalytiX Auth Service"
     
     # JWT Settings
     SECRET_KEY: str = os.getenv("SECRET_KEY", "SUPER_SECRET_SCIENTIFIC_PLATFORM_KEY_2026")

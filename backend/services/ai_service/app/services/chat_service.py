@@ -213,7 +213,7 @@ class ChatService:
         for h in history[-6:]:
             chat_history_msgs.append({"role": h.role, "content": h.content})
 
-        system_prompt = f"""You are the AI Scientist Copilot for GENQUANTAA Discover, an advanced drug discovery and bioinformatics analytics platform.
+        system_prompt = f"""You are the AI Scientist Copilot for AnalytiX, an advanced drug discovery and bioinformatics analytics platform.
 You must answer the user's scientific questions using ONLY the provided platform context.
 Always cite your sources using tags like [1], [2], etc., matching the retrieved sources.
 Maintain a professional, premium scientific tone. Explain structures, alignments, or assay parameters clearly.

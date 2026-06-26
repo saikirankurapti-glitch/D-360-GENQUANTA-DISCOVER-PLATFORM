@@ -1,5 +1,5 @@
 """
-GENQUANTAA Discover – Shared Security Middleware
+AnalytiX – Shared Security Middleware
 =================================================
 Provides:
   • JWT rotation / refresh token revocation (token blacklist)

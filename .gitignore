@@ -32,3 +32,7 @@ build/
 # Logs
 logs/
 *.log
+
+# Test reports
+frontend/playwright-report/
+frontend/test-results/

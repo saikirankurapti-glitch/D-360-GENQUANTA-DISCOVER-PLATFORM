@@ -479,7 +479,7 @@ def get_chat_response(query_idx: int) -> tuple:
         summary["audit_logs"] = r[0][0] if r else 120
         
         md = "### Executive Scientific Summary\n\n"
-        md += "An end-to-end telemetry audit of the GENQUANTAA Discover platform registers the following status metrics:\n\n"
+        md += "An end-to-end telemetry audit of the AnalytiX platform registers the following status metrics:\n\n"
         md += "#### Platform-Wide Registry Telemetry\n"
         md += f"- **Compounds cataloged**: **{summary['compounds']}** active molecules [1].\n"
         md += f"- **Assays run**: **{summary['assays']}** pharmacological screening runs.\n"

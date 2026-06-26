@@ -1,5 +1,5 @@
 /**
- * GENQUANTAA Discover – k6 Load Test Suite
+ * AnalytiX Discover – k6 Load Test Suite
  * ==========================================
  * Supplemental load test using k6 for precise scenario control.
  * 
@@ -66,7 +66,7 @@ export const options = {
   ext: {
     loadimpact: {
       projectID: 0,
-      name: 'GENQUANTAA Discover Load Test',
+      name: 'AnalytiX Discover Load Test',
     },
   },
 };
@@ -97,7 +97,7 @@ const AI_URL          = 'http://localhost:8010';
 // --------------------------------------------------------------------------
 function login() {
   const params = new URLSearchParams();
-  params.append('username', 'scientist@genquantaa.com');
+  params.append('username', 'scientist@analytix.com');
   params.append('password', 'ScientistPass123!');
 
   const start = Date.now();
@@ -226,7 +226,7 @@ export default function () {
 // Setup (runs once before test)
 // --------------------------------------------------------------------------
 export function setup() {
-  console.log('GENQUANTAA Discover Load Test – Setup');
+  console.log('AnalytiX Discover Load Test – Setup');
   // Verify services are reachable
   const services = [
     { name: 'auth',     url: `${AUTH_URL}/health` },
@@ -251,5 +251,5 @@ export function setup() {
 // Teardown (runs once after test)
 // --------------------------------------------------------------------------
 export function teardown(data) {
-  console.log('GENQUANTAA Discover Load Test – Complete');
+  console.log('AnalytiX Discover Load Test – Complete');
 }

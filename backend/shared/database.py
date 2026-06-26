@@ -1,6 +1,6 @@
 # backend/shared/database.py
 # =============================================================================
-# GENQUANTAA Discover – Shared PostgreSQL Database Module
+# AnalytiX – Shared PostgreSQL Database Module
 # Phase 8: Unified database engine factory with connection pooling,
 # async support, transaction management, and HA-ready configuration.
 # =============================================================================

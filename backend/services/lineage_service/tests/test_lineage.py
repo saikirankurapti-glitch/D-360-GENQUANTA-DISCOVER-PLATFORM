@@ -14,7 +14,7 @@ def client():
 def test_health(client):
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json()["service"] == "Discover Lineage Service"
+    assert response.json()["service"] == "AnalytiX Lineage Service"
 
 def test_record_trace(client):
     payload = {

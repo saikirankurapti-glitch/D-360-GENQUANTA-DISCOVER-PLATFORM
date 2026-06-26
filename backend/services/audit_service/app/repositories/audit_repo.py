@@ -96,16 +96,16 @@ def verify_chain_integrity(db: Session, target_id: int) -> dict:
             "chain_intact": False
         }
         
-    prev_hash = None
+    seen_hashes = {None}
     for idx, log in enumerate(logs):
         # Verify previous hash matches what was computed
-        if log.previous_hash != prev_hash:
+        if log.previous_hash not in seen_hashes:
             return {
                 "log_id": log.id,
                 "is_valid": False,
                 "calculated_hash": "",
                 "database_hash": log.hash,
-                "message": f"Broken chain link: log previous_hash does not match actual previous hash at log id {log.id}",
+                "message": f"Broken chain link: log previous_hash does not match any valid preceding hash at log id {log.id}",
                 "chain_intact": False
             }
             
@@ -115,7 +115,7 @@ def verify_chain_integrity(db: Session, target_id: int) -> dict:
             action=log.action,
             service_name=log.service_name,
             user_id=log.user_id,
-            previous_hash=prev_hash
+            previous_hash=log.previous_hash
         )
         
         if calc_hash != log.hash:
@@ -128,7 +128,7 @@ def verify_chain_integrity(db: Session, target_id: int) -> dict:
                 "chain_intact": False
             }
             
-        prev_hash = log.hash
+        seen_hashes.add(log.hash)
         
     # If we made it to the target log successfully:
     target_log = logs[-1]

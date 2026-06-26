@@ -150,7 +150,7 @@ class DashboardGenerator:
 
     def _llm_generate(self, prompt: str) -> Dict[str, Any]:
         """Queries OpenAI GPT for a custom dashboard layout."""
-        system_prompt = """You are the AI Scientist Copilot dashboard compiler for GENQUANTAA Discover.
+        system_prompt = """You are the AI Scientist Copilot dashboard compiler for AnalytiX.
 Your job is to translate a user request into a structured JSON dashboard layout with Plotly configurations.
 Ensure your response is valid JSON matching this format:
 {

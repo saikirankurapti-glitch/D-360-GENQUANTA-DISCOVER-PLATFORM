@@ -1,5 +1,5 @@
 # =============================================================================
-# GENQUANTAA Discover – PostgreSQL Schema Definitions (single DB: genquantaa)
+# AnalytiX Discover – PostgreSQL Schema Definitions (single DB: genquantaa)
 # =============================================================================
 -- Create schemas for each microservice
 CREATE SCHEMA IF NOT EXISTS auth;

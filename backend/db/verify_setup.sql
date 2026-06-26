@@ -1,5 +1,5 @@
 -- ==============================================================
--- GENQUANTAA Discover – Full Schema Alignment Verification
+-- AnalytiX Discover – Full Schema Alignment Verification
 -- ==============================================================
 -- Run ALL statements in order in Supabase SQL Editor.
 -- Every block is labelled with what it checks and what to expect.

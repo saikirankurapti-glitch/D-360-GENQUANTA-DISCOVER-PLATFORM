@@ -92,8 +92,8 @@ def get_auth_token():
         url = f"http://localhost:{API_PORTS['auth']}/api/v1/auth/login"
         print(f"Authenticating against {url}...")
         resp = requests.post(url, json={
-            "email": "admin@genquantaa.com",
-            "password": "GenQuantaaDiscover2026!"
+            "email": "admin@analytix.com",
+            "password": "AnalytiXDiscover2026!"
         })
         if resp.status_code == 200:
             return resp.json().get("access_token")
