@@ -1,11 +1,11 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { apiRequest } from '../../../services/api';
 import _createPlotlyComponent from 'react-plotly.js/factory';
 import Plotly from 'plotly.js-dist-min';
 import { 
-  BarChart4, LayoutDashboard, Dna, GitMerge, ShieldCheck, 
-  Sparkles, RefreshCw, FlaskConical, TrendingUp, Clock, 
-  CheckCircle2, AlertTriangle, FileText, Activity, AlertCircle, Database
+  LayoutDashboard, Dna, GitMerge, ShieldCheck, 
+  Sparkles, RefreshCw, FlaskConical, 
+  CheckCircle2, Activity, AlertCircle, Database
 } from 'lucide-react';
 
 const createPlotlyComponent = typeof _createPlotlyComponent === 'function'
