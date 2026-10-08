@@ -14,7 +14,7 @@ import {
   BarChart4, Database, Save, FolderOpen, RefreshCw, 
   Settings, HelpCircle, Activity, Sparkles, Trash2, CheckCircle2,
   Maximize2, Minimize2, Download, Filter, Sliders, 
-  Trash, ArrowLeft, Info, Table, BarChart2
+  ArrowLeft, Info, Table
 } from 'lucide-react';
 
 // Demo Dataset for instant wow-factor testing
@@ -1098,54 +1098,6 @@ export const AnalysisWorkbench = () => {
   };
 
   // Plotly chart data formulations
-  const scatterPlotData = useMemo(() => {
-    if (rows.length === 0 || !xCol || !yCol) return [];
-    const xIdx = columns.indexOf(xCol);
-    const yIdx = columns.indexOf(yCol);
-    const cIdx = colorCol ? columns.indexOf(colorCol) : -1;
-
-    // If colored by cluster labels
-    if (colorCol === '_cluster_labels_' && clusterLabels.length === rows.length) {
-      const uniqueClusters = Array.from(new Set(clusterLabels));
-      return uniqueClusters.map(label => {
-        const cRows = rows.filter((_, idx) => clusterLabels[idx] === label);
-        return {
-          x: cRows.map(r => r[xIdx]),
-          y: cRows.map(r => r[yIdx]),
-          mode: 'markers',
-          type: 'scatter',
-          name: `Cluster ${label}`,
-          marker: { size: 10 }
-        };
-      });
-    }
-
-    // Standard coloring by a categorical column
-    if (cIdx !== -1) {
-      const uniqueCategories = Array.from(new Set(rows.map(r => r[cIdx])));
-      return uniqueCategories.map(cat => {
-        const catRows = rows.filter(r => r[cIdx] === cat);
-        return {
-          x: catRows.map(r => r[xIdx]),
-          y: catRows.map(r => r[yIdx]),
-          mode: 'markers',
-          type: 'scatter',
-          name: String(cat),
-          marker: { size: 9 }
-        };
-      });
-    }
-
-    return [{
-      x: rows.map(r => r[xIdx]),
-      y: rows.map(r => r[yIdx]),
-      mode: 'markers',
-      type: 'scatter',
-      name: 'Datapoints',
-      marker: { color: '#0ea5e9', size: 9 }
-    }];
-  }, [rows, columns, xCol, yCol, colorCol, clusterLabels]);
-
   // AG Grid columns configuration
   const gridColumnDefs = useMemo<ColDef[]>(() => {
     return columns.map(c => ({
@@ -1872,7 +1824,7 @@ export const AnalysisWorkbench = () => {
                                     margin: { l: 20, r: 20, t: 10, b: 20 }
                                   }}
                                   config={{ responsive: true, displayModeBar: false }}
-                                  onClick={(data) => {
+                                  onClick={(data: any) => {
                                     if (!data || !data.points || data.points.length === 0) return;
                                     const cCol = columnProfiles.filter(p => p.type === 'categorical')[0].name;
                                     const clickVal = data.points[0].label;
