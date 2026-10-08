@@ -13,7 +13,7 @@ const Plot = createPlotlyComponent(Plotly);
 import { 
   BarChart4, Database, Save, FolderOpen, RefreshCw, 
   Settings, HelpCircle, Activity, Sparkles, Trash2, CheckCircle2,
-  Maximize2, Minimize2, Download, Filter, Sliders, ChevronDown, 
+  Maximize2, Minimize2, Download, Filter, Sliders, 
   Trash, ArrowLeft, Info, Table, BarChart2
 } from 'lucide-react';
 
