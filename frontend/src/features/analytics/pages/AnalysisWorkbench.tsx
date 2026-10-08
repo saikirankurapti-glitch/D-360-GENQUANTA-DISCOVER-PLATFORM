@@ -1823,9 +1823,9 @@ export const AnalysisWorkbench = () => {
                                   legend: { font: { color: '#94a3b8' } }
                                 }}
                                 config={{ responsive: true, displayModeBar: false }}
-                                onInitialized={(figure, graphDiv) => setPlotlyRef(graphDiv)}
-                                onUpdate={(figure, graphDiv) => setPlotlyRef(graphDiv)}
-                                onClick={(data) => {
+                                onInitialized={(_figure: unknown, graphDiv: any) => setPlotlyRef(graphDiv)}
+                                onUpdate={(_figure: unknown, graphDiv: any) => setPlotlyRef(graphDiv)}
+                                onClick={(data: any) => {
                                   if (!data || !data.points || data.points.length === 0) return;
                                   const pt = data.points[0];
                                   const clickVal = pt.x ?? pt.label;
